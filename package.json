@@ -1,4 +1,11 @@
 {
+  "name": "skypro-wallet",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test"
+  },
   "dependencies": {
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
