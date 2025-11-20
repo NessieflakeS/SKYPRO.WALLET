@@ -6,7 +6,7 @@ import {
   getCategoryDataForChart,
   formatDateRange 
 } from '../../utils/analyticsUtils';
-import './AnalyticsChart.css';
+import './Analytics.css';
 
 const AnalyticsChart = () => {
   const { expenses, analyticsPeriod } = useApp();
