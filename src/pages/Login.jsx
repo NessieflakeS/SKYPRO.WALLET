@@ -1,14 +1,13 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import LoginForm from '../components/Auth/LoginForm';
 import './Pages.css';
 
 const Login = () => {
-  const handleSwitchToRegister = () => {
-    console.log('Switch to register');
-  };
+  const navigate = useNavigate();
 
-  const handleLoginSuccess = () => {
-    console.log('Login successful');
+  const handleSwitchToRegister = () => {
+    navigate('/register');
   };
 
   return (
@@ -17,7 +16,6 @@ const Login = () => {
         <h1 className="auth-title">SkyproWallet</h1>
         <LoginForm 
           onSwitchToRegister={handleSwitchToRegister}
-          onLoginSuccess={handleLoginSuccess}
         />
       </div>
     </div>

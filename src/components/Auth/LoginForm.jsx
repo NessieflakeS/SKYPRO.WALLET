@@ -1,13 +1,20 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useApp } from '../../context/AppContext';
 import './Auth.css';
+import { validateEmail, validatePassword, validateName } from '../../utils/validation';
 
-const LoginForm = ({ onSwitchToRegister, onLoginSuccess }) => {
+const LoginForm = ({ onSwitchToRegister }) => {
   const [formData, setFormData] = useState({
     email: '',
     password: ''
   });
   const [errors, setErrors] = useState({});
   const [touched, setTouched] = useState({});
+  const [isLoading, setIsLoading] = useState(false);
+
+  const { dispatch } = useApp();
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -16,7 +23,6 @@ const LoginForm = ({ onSwitchToRegister, onLoginSuccess }) => {
       [name]: value
     }));
     
-
     if (touched[name]) {
       validateField(name, value);
     }
@@ -29,36 +35,57 @@ const LoginForm = ({ onSwitchToRegister, onLoginSuccess }) => {
   };
 
   const validateField = (name, value) => {
-    const newErrors = { ...errors };
-    
-    switch (name) {
-      case 'email':
-        if (!value.includes('@')) {
-          newErrors.email = 'Некорректный email';
-        } else {
-          delete newErrors.email;
-        }
-        break;
-      case 'password':
-        if (value.length < 6) {
-          newErrors.password = 'Пароль должен быть не менее 6 символов';
-        } else {
-          delete newErrors.password;
-        }
-        break;
-      default:
-        break;
-    }
-    
-    setErrors(newErrors);
-  };
+  const newErrors = { ...errors };
+  
+  switch (name) {
+    case 'email':
+      if (!validateEmail(value)) {
+        newErrors.email = 'Некорректный email';
+      } else {
+        delete newErrors.email;
+      }
+      break;
+    case 'password':
+      if (!validatePassword(value)) {
+        newErrors.password = 'Пароль должен быть не менее 6 символов';
+      } else {
+        delete newErrors.password;
+      }
+      break;
+    default:
+      break;
+  }
+  
+  setErrors(newErrors);
+};
 
   const isFormValid = formData.email && formData.password && Object.keys(errors).length === 0;
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (isFormValid) {
-      onLoginSuccess();
+    
+    if (!isFormValid) return;
+    
+    setIsLoading(true);
+    
+    try {
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      if (formData.password.length >= 6) {
+        const user = {
+          email: formData.email,
+          name: formData.email.split('@')[0] 
+        };
+        
+        dispatch({ type: 'LOGIN_SUCCESS', payload: user });
+        navigate('/expenses');
+      } else {
+        setErrors({ submit: 'Неверный email или пароль' });
+      }
+    } catch (error) {
+      setErrors({ submit: 'Ошибка при входе' });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -74,6 +101,7 @@ const LoginForm = ({ onSwitchToRegister, onLoginSuccess }) => {
             value={formData.email}
             onChange={handleChange}
             onBlur={handleBlur}
+            disabled={isLoading}
           />
           {errors.email && <span className="error-icon">*</span>}
         </div>
@@ -86,22 +114,28 @@ const LoginForm = ({ onSwitchToRegister, onLoginSuccess }) => {
             value={formData.password}
             onChange={handleChange}
             onBlur={handleBlur}
+            disabled={isLoading}
           />
           {errors.password && <span className="error-icon">*</span>}
         </div>
 
+        {errors.submit && (
+          <div className="error-message">{errors.submit}</div>
+        )}
+
         <button 
           type="submit" 
           className={`auth-button ${isFormValid ? 'active' : 'inactive'}`}
-          disabled={!isFormValid}
+          disabled={!isFormValid || isLoading}
         >
-          Войти
+          {isLoading ? 'Вход...' : 'Войти'}
         </button>
       </form>
       
       <button 
         onClick={onSwitchToRegister}
         className="switch-button"
+        disabled={isLoading}
       >
         Регистрируйтесь здесь
       </button>
