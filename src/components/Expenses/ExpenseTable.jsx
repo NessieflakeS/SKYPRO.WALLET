@@ -1,18 +1,18 @@
 import React from 'react';
 import { useApp } from '../../context/AppContext';
+import { useNotification } from '../../context/NotificationContext';
 import './Expenses.css';
 
 const ExpenseTable = () => {
-    const { addNotification } = useNotification();
-  
-    const handleDelete = (id) => {
+    const { expenses, dispatch } = useApp();
+    const { addNotification } = useNotification(); 
+
+  const handleDelete = (id) => {
     if (window.confirm('Вы уверены, что хотите удалить этот расход?')) {
       dispatch({ type: 'DELETE_EXPENSE', payload: id });
       addNotification('Расход удален', 'info');
     }
   };
-
-  const { expenses, dispatch } = useApp();
 
   const getCategoryIcon = (category) => {
     const icons = {
