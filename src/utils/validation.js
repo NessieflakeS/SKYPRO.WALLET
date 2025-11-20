@@ -12,5 +12,10 @@ export const validateName = (name) => {
 };
 
 export const validateAmount = (amount) => {
-  return !isNaN(amount) && Number(amount) > 0 && Number(amount) <= 1000000;
+  const numAmount = Number(amount);
+  return !isNaN(numAmount) && numAmount > 0 && numAmount <= 1000000;
+};
+
+export const validateDescription = (description) => {
+  return description.trim().length > 0;
 };

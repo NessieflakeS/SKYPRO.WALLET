@@ -1,88 +1,62 @@
 import React from 'react';
 import { useApp } from '../../context/AppContext';
-import { useNotification } from '../../context/NotificationContext';
 import './Expenses.css';
 
 const ExpenseTable = () => {
   const { expenses, dispatch } = useApp();
-  const { addNotification } = useNotification();
 
-  const handleDelete = (id) => {
-    if (window.confirm('Вы уверены, что хотите удалить этот расход?')) {
-      dispatch({ type: 'DELETE_EXPENSE', payload: id });
-      addNotification('Расход удален', 'info');
-    }
+  const handleDeleteExpense = (id) => {
+    dispatch({ type: 'DELETE_EXPENSE', payload: id });
   };
 
-  const getCategoryName = (category) => {
-    const names = {
-      'food': 'Еда',
-      'transport': 'Транспорт', 
-      'housing': 'Жилье',
-      'entertainment': 'Развлечения',
-      'education': 'Образование',
-      'other': 'Другое'
-    };
-    return names[category] || 'Другое';
+  const categoryNames = {
+    food: 'Еда',
+    transport: 'Транспорт',
+    housing: 'Жилье',
+    entertainment: 'Развлечения',
+    education: 'Образование',
+    other: 'Другое'
   };
 
   return (
-    <div className="expense-table">
-      <div className="table-container">
-        {expenses.length > 0 ? (
-          <table className="expenses-table">
-            <thead>
-              <tr>
-                <th>Описание</th>
-                <th>Категория</th>
-                <th>Дата</th>
-                <th>Сумма</th>
-                <th></th>
+    <div className="expense-table-container">
+      <h3 className="expenses-subtitle">Таблица расходов</h3>
+      <div className="table-scroll-container">
+        <table className="expense-table">
+          <thead>
+            <tr>
+              <th>Категория</th>
+              <th>Описание</th>
+              <th>Дата</th>
+              <th>Сумма</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {expenses.map((expense) => (
+              <tr key={expense.id}>
+                <td>
+                  <div className="category-cell">
+                    <span>{categoryNames[expense.category]}</span>
+                  </div>
+                </td>
+                <td>{expense.description}</td>
+                <td>{new Date(expense.date).toLocaleDateString('ru-RU')}</td>
+                <td>{expense.amount.toLocaleString('ru-RU')} ₽</td>
+                <td>
+                  <button 
+                    className="delete-btn"
+                    onClick={() => handleDeleteExpense(expense.id)}
+                  >
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M1.5 1.5L10.5 10.5M1.5 10.5L10.5 1.5" stroke="#666" strokeWidth="2" strokeLinecap="round"/>
+                    </svg>
+                  </button>
+                </td>
               </tr>
-            </thead>
-            <tbody>
-              {expenses.map(expense => (
-                <tr key={expense.id}>
-                  <td className="expense-title">
-                    <div>
-                      <strong>{expense.title}</strong>
-                      {expense.description && (
-                        <div className="expense-description">{expense.description}</div>
-                      )}
-                    </div>
-                  </td>
-                  <td className="expense-category">
-                    {getCategoryName(expense.category)}
-                  </td>
-                  <td className="expense-date">
-                    {new Date(expense.date).toLocaleDateString('ru-RU')}
-                  </td>
-                  <td className="expense-amount">{expense.amount.toLocaleString('ru-RU')} ₽</td>
-                  <td className="expense-actions">
-                    <button 
-                      className="delete-button"
-                      onClick={() => handleDelete(expense.id)}
-                      title="Удалить"
-                    >
-                      🗑️
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        ) : (
-          <div className="empty-state">
-            <p>Пока нет расходов. Добавьте первый!</p>
-          </div>
-        )}
-        
-        {expenses.length > 0 && (
-          <div className="expenses-summary">
-            <p><strong>Всего расходов:</strong> {expenses.length}</p>
-            <p><strong>Общая сумма:</strong> {expenses.reduce((sum, expense) => sum + expense.amount, 0).toLocaleString('ru-RU')} ₽</p>
-          </div>
-        )}
+            ))}
+          </tbody>
+        </table>
       </div>
     </div>
   );

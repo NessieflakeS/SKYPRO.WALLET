@@ -1,224 +1,163 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import { useNotification } from '../../context/NotificationContext';
-import CategorySelector from './CategorySelector';
 import { validateAmount } from '../../utils/validation';
 import './Expenses.css';
 
+import FoodIcon from './icons/Еда.svg';
+import TransportIcon from './icons/Транспорт.svg';
+import HousingIcon from './icons/Жилье.svg';
+import EntertainmentIcon from './icons/Развлечения.svg';
+import EducationIcon from './icons/Образование.svg';
+import OtherIcon from './icons/Другое.svg';
+
 const AddExpenseForm = () => {
   const [formData, setFormData] = useState({
-    title: '',
     description: '',
-    category: '',
-    date: new Date().toISOString().split('T')[0], 
+    category: 'food',
+    date: new Date().toISOString().split('T')[0],
     amount: ''
   });
-  
   const [errors, setErrors] = useState({});
-  const [touched, setTouched] = useState({});
 
   const { dispatch } = useApp();
   const { addNotification } = useNotification();
 
-  const handleInputChange = (e) => {
+  const categories = [
+    { key: 'food', name: 'Еда', icon: FoodIcon },
+    { key: 'transport', name: 'Транспорт', icon: TransportIcon },
+    { key: 'housing', name: 'Жилье', icon: HousingIcon },
+    { key: 'entertainment', name: 'Развлечения', icon: EntertainmentIcon },
+    { key: 'education', name: 'Образование', icon: EducationIcon },
+    { key: 'other', name: 'Другое', icon: OtherIcon }
+  ];
+
+  const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
       [name]: value
     }));
 
-    if (touched[name]) {
-      validateField(name, value);
+    if (errors[name]) {
+      setErrors(prev => ({
+        ...prev,
+        [name]: ''
+      }));
     }
   };
 
-  const handleCategoryChange = (category) => {
+  const handleCategorySelect = (categoryKey) => {
     setFormData(prev => ({
       ...prev,
-      category
+      category: categoryKey
     }));
-    
-    if (touched.category) {
-      validateField('category', category);
-    }
   };
 
-  const handleBlur = (e) => {
-    const { name } = e.target;
-    setTouched(prev => ({ ...prev, [name]: true }));
-    validateField(name, formData[name]);
-  };
+  const validateForm = () => {
+    const newErrors = {};
 
-  const validateField = (name, value) => {
-    const newErrors = { ...errors };
-    
-    switch (name) {
-      case 'title':
-        if (!value.trim()) {
-          newErrors.title = 'Обязательное поле';
-        } else {
-          delete newErrors.title;
-        }
-        break;
-      case 'category':
-        if (!value) {
-          newErrors.category = 'Выберите категорию';
-        } else {
-          delete newErrors.category;
-        }
-        break;
-      case 'date':
-        if (!value) {
-          newErrors.date = 'Укажите дату';
-        } else {
-          delete newErrors.date;
-        }
-        break;
-      case 'amount':
-        if (!validateAmount(value)) {
-          newErrors.amount = 'Введите корректную сумму (от 1 до 1 000 000 ₽)';
-        } else {
-          delete newErrors.amount;
-        }
-        break;
-      default:
-        break;
+    if (!formData.description.trim()) {
+      newErrors.description = 'Описание обязательно';
     }
-    
+
+    if (!validateAmount(formData.amount)) {
+      newErrors.amount = 'Сумма должна быть положительным числом до 1,000,000';
+    }
+
     setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
-
-  const isFormValid = formData.title && formData.category && formData.date && 
-                     formData.amount && Object.keys(errors).length === 0;
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (isFormValid) {
-      const expense = {
-        ...formData,
-        amount: Number(formData.amount),
-        createdAt: new Date().toISOString()
-      };
-      
-      dispatch({ type: 'ADD_EXPENSE', payload: expense });
-      addNotification('Расход успешно добавлен', 'success');
-      
-      setFormData({
-        title: '',
-        description: '',
-        category: '',
-        date: new Date().toISOString().split('T')[0],
-        amount: ''
-      });
-      setErrors({});
-      setTouched({});
-    } else {
-      const allTouched = {
-        title: true,
-        category: true,
-        date: true,
-        amount: true
-      };
-      setTouched(allTouched);
-      
-      Object.keys(formData).forEach(key => {
-        if (key !== 'description') { 
-          validateField(key, formData[key]);
-        }
-      });
-      
-      addNotification('Пожалуйста, заполните все обязательные поля правильно', 'error');
-    }
-  };
 
-  const getInputClassName = (fieldName) => {
-    if (errors[fieldName]) return 'error';
-    if (formData[fieldName] && !errors[fieldName]) return 'valid';
-    return '';
+    if (!validateForm()) {
+      addNotification('Пожалуйста, проверьте введенные данные', 'error');
+      return;
+    }
+
+    const expense = {
+      description: formData.description.trim(),
+      category: formData.category,
+      date: formData.date,
+      amount: Number(formData.amount)
+    };
+
+    dispatch({ type: 'ADD_EXPENSE', payload: expense });
+    addNotification('Расход успешно добавлен!', 'success');
+
+    setFormData({
+      description: '',
+      category: 'food',
+      date: new Date().toISOString().split('T')[0],
+      amount: ''
+    });
   };
 
   return (
     <div className="add-expense-form">
-      <h2 className="form-title">Новый расход</h2>
+      <h3 className="expenses-subtitle">Новый расход</h3>
+      
       <form onSubmit={handleSubmit}>
-        <div className={`form-group ${getInputClassName('title')}`}>
-            <label className="form-label">Описание *</label>
-            <input
-                type="text"
-                name="title"
-                placeholder="Описание расхода"
-                value={formData.title}
-                onChange={handleInputChange}
-                onBlur={handleBlur}
-            />
-            {errors.title && <span className="error-icon">*</span>}
-            {errors.title && <div className="error-text">{errors.title}</div>}
-        </div>
-
         <div className="form-group">
           <label className="form-label">Описание</label>
           <input
             type="text"
             name="description"
-            placeholder="Дополнительное описание"
             value={formData.description}
-            onChange={handleInputChange}
+            onChange={handleChange}
+            className={`form-input ${errors.description ? 'error' : ''}`}
+            placeholder="Введите описание расхода"
           />
+          {errors.description && <span className="error-text">{errors.description}</span>}
         </div>
 
-        <div className={`form-group ${errors.category ? 'error' : formData.category ? 'valid' : ''}`}>
-          <label className="form-label">
-            Категория *
-            {errors.category && <span className="error-asterisk"> *</span>}
-          </label>
-          <CategorySelector 
-            selectedCategory={formData.category}
-            onCategoryChange={handleCategoryChange}
-          />
-          {errors.category && <div className="error-text">{errors.category}</div>}
+        <div className="form-group">
+          <label className="form-label">Категория</label>
+          <div className="categories-grid">
+            {categories.map(category => (
+              <button
+                key={category.key}
+                type="button"
+                className={`category-btn ${formData.category === category.key ? 'selected' : ''}`}
+                onClick={() => handleCategorySelect(category.key)}
+              >
+                <img src={category.icon} alt={category.name} className="category-icon" />
+                <span className="category-name">{category.name}</span>
+              </button>
+            ))}
+          </div>
         </div>
 
-        <div className={`form-group ${getInputClassName('date')}`}>
-          <label className="form-label">
-            Дата *
-            {errors.date && <span className="error-asterisk"> *</span>}
-          </label>
+        <div className="form-group">
+          <label className="form-label">Дата</label>
           <input
             type="date"
             name="date"
             value={formData.date}
-            onChange={handleInputChange}
-            onBlur={handleBlur}
+            onChange={handleChange}
+            className="form-input"
           />
-          {errors.date && <span className="error-icon">*</span>}
-          {errors.date && <div className="error-text">{errors.date}</div>}
         </div>
 
-        <div className={`form-group ${getInputClassName('amount')}`}>
-          <label className="form-label">
-            Сумма *
-            {errors.amount && <span className="error-asterisk"> *</span>}
-          </label>
+        <div className="form-group">
+          <label className="form-label">Сумма</label>
           <input
             type="number"
             name="amount"
-            placeholder="0"
             value={formData.amount}
-            onChange={handleInputChange}
-            onBlur={handleBlur}
+            onChange={handleChange}
+            className={`form-input ${errors.amount ? 'error' : ''}`}
+            placeholder="0"
             min="1"
             max="1000000"
           />
-          {errors.amount && <span className="error-icon">*</span>}
-          {errors.amount && <div className="error-text">{errors.amount}</div>}
+          {errors.amount && <span className="error-text">{errors.amount}</span>}
         </div>
 
-        <button 
-          type="submit" 
-          className={`submit-button ${isFormValid ? 'active' : 'inactive'}`}
-          disabled={!isFormValid}
-        >
-          Добавить новый расход
+        <button type="submit" className="submit-btn">
+          Добавить расход
         </button>
       </form>
     </div>

@@ -4,51 +4,54 @@ import { useApp } from '../../context/AppContext';
 import './Header.css';
 
 const Header = () => {
+  const { isAuthenticated, dispatch } = useApp();
   const navigate = useNavigate();
   const location = useLocation();
-  const { dispatch } = useApp();
+
+  const handleLogoClick = () => {
+    navigate('/expenses');
+  };
 
   const handleLogout = () => {
     dispatch({ type: 'LOGOUT' });
     navigate('/login');
   };
 
-  const handleNavigation = (path) => {
-    navigate(path);
+  const handleNavigation = (page) => {
+    navigate(`/${page}`);
   };
 
-  const getCurrentPage = () => {
-    if (location.pathname === '/expenses') return 'expenses';
-    if (location.pathname === '/analytics') return 'analytics';
-    return 'expenses';
-  };
-
-  const currentPage = getCurrentPage();
+  const isAuthPage = location.pathname === '/login' || location.pathname === '/register';
 
   return (
     <header className="header">
-      <div className="header__content">
-        <div className="header__nav-center">
+      <div className="header-logo" onClick={handleLogoClick}>
+        <img src="/favicon.png" alt="SkyproWallet" />
+        <span>Skypro.Wallet</span>
+      </div>
+
+      {!isAuthPage && isAuthenticated && (
+        <nav className="header-nav">
           <button 
-            className={`header__nav-btn ${currentPage === 'expenses' ? 'active' : ''}`}
-            onClick={() => handleNavigation('/expenses')}
+            className={`nav-btn ${location.pathname === '/expenses' ? 'active' : ''}`}
+            onClick={() => handleNavigation('expenses')}
           >
             Мои расходы
           </button>
           <button 
-            className={`header__nav-btn ${currentPage === 'analytics' ? 'active' : ''}`}
-            onClick={() => handleNavigation('/analytics')}
+            className={`nav-btn ${location.pathname === '/analytics' ? 'active' : ''}`}
+            onClick={() => handleNavigation('analytics')}
           >
             Анализ расходов
           </button>
-        </div>
-        <button 
-          className="header__logout"
-          onClick={handleLogout}
-        >
+        </nav>
+      )}
+
+      {!isAuthPage && isAuthenticated && (
+        <button className="logout-btn" onClick={handleLogout}>
           Выйти
         </button>
-      </div>
+      )}
     </header>
   );
 };

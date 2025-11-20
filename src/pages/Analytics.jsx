@@ -9,6 +9,7 @@ const Analytics = () => {
     <div className="page analytics-page">
       <Header currentPage="analytics" />
       <div className="page-content">
+        <h1 className="analytics-main-title">Анализ расходов</h1>
         <div className="analytics-layout">
           <div className="calendar-section">
             <Calendar />

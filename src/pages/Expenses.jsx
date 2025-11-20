@@ -9,12 +9,13 @@ const Expenses = () => {
     <div className="page expenses-page">
       <Header currentPage="expenses" />
       <div className="page-content">
+        <h1 className="expenses-main-title">Мои расходы</h1>
         <div className="expenses-layout">
-          <div className="expenses-form-section">
-            <AddExpenseForm />
-          </div>
           <div className="expenses-table-section">
             <ExpenseTable />
+          </div>
+          <div className="expenses-form-section">
+            <AddExpenseForm />
           </div>
         </div>
       </div>

@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useApp } from '../../context/AppContext';
 import { useNotification } from '../../context/NotificationContext';
-import './Auth.css';
+import { validateEmail, validatePassword, validateName } from '../../utils/validation';
+import './AuthForms.css';
 
 const RegisterForm = ({ onSwitchToLogin }) => {
   const [formData, setFormData] = useState({
@@ -13,11 +13,9 @@ const RegisterForm = ({ onSwitchToLogin }) => {
   });
   const [errors, setErrors] = useState({});
   const [touched, setTouched] = useState({});
-  const [isLoading, setIsLoading] = useState(false);
 
   const { dispatch } = useApp();
   const { addNotification } = useNotification();
-  const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -25,171 +23,166 @@ const RegisterForm = ({ onSwitchToLogin }) => {
       ...prev,
       [name]: value
     }));
-    
-    if (touched[name]) {
-      validateField(name, value);
+
+    if (errors[name]) {
+      setErrors(prev => ({
+        ...prev,
+        [name]: ''
+      }));
+    }
+
+    if (name === 'password' && formData.confirmPassword) {
+      if (value !== formData.confirmPassword) {
+        setErrors(prev => ({
+          ...prev,
+          confirmPassword: 'Пароли не совпадают'
+        }));
+      } else {
+        setErrors(prev => ({
+          ...prev,
+          confirmPassword: ''
+        }));
+      }
     }
   };
 
   const handleBlur = (e) => {
-    const { name } = e.target;
-    setTouched(prev => ({ ...prev, [name]: true }));
-    validateField(name, formData[name]);
+    const { name, value } = e.target;
+    setTouched(prev => ({
+      ...prev,
+      [name]: true
+    }));
+
+    let error = '';
+    
+    if (name === 'name' && !validateName(value)) {
+      error = 'Имя должно содержать не менее 2 символов';
+    } else if (name === 'email' && !validateEmail(value)) {
+      error = 'Некорректный email';
+    } else if (name === 'password' && !validatePassword(value)) {
+      error = 'Пароль должен содержать не менее 6 символов';
+    } else if (name === 'confirmPassword' && value !== formData.password) {
+      error = 'Пароли не совпадают';
+    }
+
+    setErrors(prev => ({
+      ...prev,
+      [name]: error
+    }));
   };
 
-  const validateField = (name, value) => {
-    const newErrors = { ...errors };
+  const validateForm = () => {
+    const newErrors = {};
     
-    switch (name) {
-      case 'name':
-        if (!value.trim()) {
-          newErrors.name = 'Имя обязательно';
-        } else {
-          delete newErrors.name;
-        }
-        break;
-      case 'email':
-        if (!value.includes('@')) {
-          newErrors.email = 'Некорректный email';
-        } else {
-          delete newErrors.email;
-        }
-        break;
-      case 'password':
-        if (value.length < 6) {
-          newErrors.password = 'Пароль должен быть не менее 6 символов';
-        } else {
-          delete newErrors.password;
-        }
-        
-        if (formData.confirmPassword && value !== formData.confirmPassword) {
-          newErrors.confirmPassword = 'Пароли не совпадают';
-        } else if (formData.confirmPassword) {
-          delete newErrors.confirmPassword;
-        }
-        break;
-      case 'confirmPassword':
-        if (value !== formData.password) {
-          newErrors.confirmPassword = 'Пароли не совпадают';
-        } else {
-          delete newErrors.confirmPassword;
-        }
-        break;
-      default:
-        break;
+    if (!validateName(formData.name)) {
+      newErrors.name = 'Имя должно содержать не менее 2 символов';
     }
     
+    if (!validateEmail(formData.email)) {
+      newErrors.email = 'Некорректный email';
+    }
+    
+    if (!validatePassword(formData.password)) {
+      newErrors.password = 'Пароль должен содержать не менее 6 символов';
+    }
+
+    if (formData.password !== formData.confirmPassword) {
+      newErrors.confirmPassword = 'Пароли не совпадают';
+    }
+
     setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
-  const isFormValid = formData.name && formData.email && formData.password && 
-                     formData.confirmPassword && Object.keys(errors).length === 0;
-
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     
-    if (!isFormValid) return;
-    
-    setIsLoading(true);
-    
-    try {
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      const user = {
-        name: formData.name,
-        email: formData.email
-      };
-      
-      dispatch({ type: 'REGISTER_SUCCESS', payload: user });
-      addNotification('Регистрация выполнена успешно', 'success');
-      navigate('/expenses');
-    } catch (error) {
-      setErrors({ submit: 'Ошибка при регистрации' });
-    } finally {
-      setIsLoading(false);
+    if (!validateForm()) {
+      addNotification('Упс! Введенные данные некорректны. Введите данные корректно и повторите попытку.', 'error');
+      return;
     }
+
+    const user = {
+      id: Date.now().toString(),
+      email: formData.email,
+      name: formData.name
+    };
+    
+    dispatch({ type: 'REGISTER_SUCCESS', payload: user });
+    addNotification('Регистрация выполнена успешно!', 'success');
   };
 
+  const hasErrors = Object.values(errors).some(error => error) || 
+                   !formData.name || 
+                   !formData.email || 
+                   !formData.password || 
+                   !formData.confirmPassword;
+
   return (
-    <div className="auth-form">
-      <form onSubmit={handleSubmit} className="auth-form__content">
-        <div className={`input-group ${errors.name ? 'error' : formData.name ? 'valid' : ''}`}>
-          <input
-            type="text"
-            name="name"
-            placeholder="Имя"
-            value={formData.name}
-            onChange={handleChange}
-            onBlur={handleBlur}
-            disabled={isLoading}
-          />
-          {errors.name && <span className="error-icon">*</span>}
-        </div>
-        
-        <div className={`input-group ${errors.email ? 'error' : formData.email ? 'valid' : ''}`}>
-          <input
-            type="email"
-            name="email"
-            placeholder="Эл. почта"
-            value={formData.email}
-            onChange={handleChange}
-            onBlur={handleBlur}
-            disabled={isLoading}
-          />
-          {errors.email && <span className="error-icon">*</span>}
-        </div>
-        
-        <div className={`input-group ${errors.password ? 'error' : formData.password ? 'valid' : ''}`}>
-          <input
-            type="password"
-            name="password"
-            placeholder="Пароль"
-            value={formData.password}
-            onChange={handleChange}
-            onBlur={handleBlur}
-            disabled={isLoading}
-          />
-          {errors.password && <span className="error-icon">*</span>}
-        </div>
-
-        <div className={`input-group ${errors.confirmPassword ? 'error' : formData.confirmPassword ? 'valid' : ''}`}>
-          <input
-            type="password"
-            name="confirmPassword"
-            placeholder="Подтвердите пароль"
-            value={formData.confirmPassword}
-            onChange={handleChange}
-            onBlur={handleBlur}
-            disabled={isLoading}
-          />
-          {errors.confirmPassword && <span className="error-icon">*</span>}
-        </div>
-
-        {errors.submit && (
-          <div className="error-message">{errors.submit}</div>
-        )}
-
-        <button 
-          type="submit" 
-          className={`auth-button ${isFormValid ? 'active' : 'inactive'}`}
-          disabled={!isFormValid || isLoading}
-        >
-          {isLoading ? 'Регистрация...' : 'Зарегистрироваться'}
-        </button>
-      </form>
-      
-      <div className="auth-switch">
-        <span>Уже есть аккаунт? </span>
-        <button 
-          onClick={onSwitchToLogin}
-          className="switch-button"
-          disabled={isLoading}
-          type="button"
-        >
-          Войдите здесь
-        </button>
+    <form className="auth-form" onSubmit={handleSubmit}>
+      <div className="form-group">
+        <input
+          type="text"
+          name="name"
+          placeholder="Имя"
+          value={formData.name}
+          onChange={handleChange}
+          onBlur={handleBlur}
+          className={`auth-input ${errors.name ? 'error' : touched.name && formData.name && !errors.name ? 'valid' : ''}`}
+        />
       </div>
-    </div>
+
+      <div className="form-group">
+        <input
+          type="email"
+          name="email"
+          placeholder="Email"
+          value={formData.email}
+          onChange={handleChange}
+          onBlur={handleBlur}
+          className={`auth-input ${errors.email ? 'error' : touched.email && formData.email && !errors.email ? 'valid' : ''}`}
+        />
+      </div>
+
+      <div className="form-group">
+        <input
+          type="password"
+          name="password"
+          placeholder="Пароль"
+          value={formData.password}
+          onChange={handleChange}
+          onBlur={handleBlur}
+          className={`auth-input ${errors.password ? 'error' : touched.password && formData.password && !errors.password ? 'valid' : ''}`}
+        />
+      </div>
+
+      <div className="form-group">
+        <input
+          type="password"
+          name="confirmPassword"
+          placeholder="Подтвердите пароль"
+          value={formData.confirmPassword}
+          onChange={handleChange}
+          onBlur={handleBlur}
+          className={`auth-input ${errors.confirmPassword ? 'error' : touched.confirmPassword && formData.confirmPassword && !errors.confirmPassword ? 'valid' : ''}`}
+        />
+      </div>
+
+      <button 
+        type="submit" 
+        className={`auth-submit-btn ${hasErrors ? 'disabled' : ''}`}
+        disabled={hasErrors}
+      >
+        Зарегистрироваться
+      </button>
+
+      <div className="auth-switch">
+        <span className="auth-switch-text">Уже есть аккаунт? </span>
+        <span className="auth-switch-link" onClick={onSwitchToLogin}>
+          Войдите здесь
+        </span>
+      </div>
+    </form>
   );
 };
 

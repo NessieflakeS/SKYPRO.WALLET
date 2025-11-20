@@ -14,7 +14,7 @@
 .auth-form-container {
   background: white;
   padding: 40px;
-  border-radius: 16px;
+  border-radius: 30px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
   width: 100%;
   max-width: 450px;
@@ -24,25 +24,25 @@
   text-align: center;
   margin-bottom: 30px;
   color: #333;
-  font-size: 24px;
-  font-weight: 600;
+  font-size: 28px;
+  font-weight: 700;
 }
 
 .expenses-layout {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 40px;
+  gap: 54px;
   align-items: start;
   max-width: 1200px;
   margin: 0 auto;
 }
 
 .expenses-main-title {
-  font-size: 28px;
+  font-size: 32px;
   font-weight: 600;
-  margin-bottom: 10px;
+  margin: 36px 0 34px 98px;
   text-align: left;
-  grid-column: 1 / -1;
+  color: #333;
 }
 
 .expenses-subtitle {
@@ -53,40 +53,73 @@
   color: #333;
 }
 
+.expenses-form-section {
+  margin-right: 120px;
+}
+
+.expenses-table-section {
+  margin-left: 98px;
+}
+
 .analytics-layout {
   display: grid;
-  grid-template-columns: 30% 70%;
-  gap: 40px;
+  grid-template-columns: 400px 1fr;
+  gap: 32px;
   align-items: start;
   max-width: 1200px;
   margin: 0 auto;
 }
 
 .analytics-main-title {
-  font-size: 28px;
+  font-size: 32px;
   font-weight: 600;
-  margin-bottom: 20px;
+  margin: 36px 0 34px 98px;
   text-align: left;
-  grid-column: 1 / -1;
+  color: #333;
+}
+
+.calendar-section {
+  margin-left: 120px;
+}
+
+.chart-section {
+  margin-right: 40px;
 }
 
 .page-content {
   padding: 20px;
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
   .expenses-layout,
   .analytics-layout {
     grid-template-columns: 1fr;
+    gap: 30px;
+  }
+  
+  .expenses-main-title,
+  .analytics-main-title {
+    margin: 20px;
+    text-align: center;
+  }
+  
+  .expenses-form-section,
+  .expenses-table-section,
+  .calendar-section,
+  .chart-section {
+    margin: 0 20px;
   }
   
   .auth-form-container {
     padding: 30px 20px;
+    margin: 20px;
   }
-  
+}
+
+@media (max-width: 768px) {
   .page-content {
-    padding: 15px;
+    padding: 10px;
   }
 }

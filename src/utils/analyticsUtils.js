@@ -24,12 +24,12 @@ export const calculateCategoryTotals = (expenses) => {
 
 export const getCategoryDataForChart = (categoryTotals, totalAmount) => {
   const categories = {
-    food: { name: 'Еда', color: '#9370DB' }, 
-    transport: { name: 'Транспорт', color: '#FFA500' }, 
-    housing: { name: 'Жилье', color: '#87CEEB' }, 
-    entertainment: { name: 'Развлечения', color: '#6A5ACD' }, 
-    education: { name: 'Образование', color: '#98FB98' }, 
-    other: { name: 'Другое', color: '#FFB6C1' } 
+    food: { name: 'Еда', color: '#D9B6FF' },
+    transport: { name: 'Транспорт', color: '#FFB53D' },
+    housing: { name: 'Жилье', color: '#6EE4FE' },
+    entertainment: { name: 'Развлечения', color: '#B0AEFF' },
+    education: { name: 'Образование', color: '#BCEC30' },
+    other: { name: 'Другое', color: '#FFB9B8' }
   };
   
   return Object.entries(categories).map(([categoryKey, categoryInfo]) => {
