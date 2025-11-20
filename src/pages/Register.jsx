@@ -1,3 +1,4 @@
+// pages/Register.jsx
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import RegisterForm from '../components/Auth/RegisterForm';
@@ -12,11 +13,13 @@ const Register = () => {
 
   return (
     <div className="page register-page">
-      <div className="auth-container">
-        <h1 className="auth-title">SkyproWallet</h1>
-        <RegisterForm 
-          onSwitchToLogin={handleSwitchToLogin}
-        />
+      <div className="auth-wrapper">
+        <div className="auth-form-container">
+          <h2 className="auth-form-title">Регистрация</h2>
+          <RegisterForm 
+            onSwitchToLogin={handleSwitchToLogin}
+          />
+        </div>
       </div>
     </div>
   );

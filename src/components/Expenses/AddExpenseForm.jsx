@@ -142,20 +142,17 @@ const AddExpenseForm = () => {
       <h2 className="form-title">Новый расход</h2>
       <form onSubmit={handleSubmit}>
         <div className={`form-group ${getInputClassName('title')}`}>
-          <label className="form-label">
-            Новый расход *
-            {errors.title && <span className="error-asterisk"> *</span>}
-          </label>
-          <input
-            type="text"
-            name="title"
-            placeholder="Описание расхода"
-            value={formData.title}
-            onChange={handleInputChange}
-            onBlur={handleBlur}
-          />
-          {errors.title && <span className="error-icon">*</span>}
-          {errors.title && <div className="error-text">{errors.title}</div>}
+            <label className="form-label">Описание *</label>
+            <input
+                type="text"
+                name="title"
+                placeholder="Описание расхода"
+                value={formData.title}
+                onChange={handleInputChange}
+                onBlur={handleBlur}
+            />
+            {errors.title && <span className="error-icon">*</span>}
+            {errors.title && <div className="error-text">{errors.title}</div>}
         </div>
 
         <div className="form-group">

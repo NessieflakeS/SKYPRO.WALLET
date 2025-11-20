@@ -28,8 +28,7 @@ const Header = () => {
   return (
     <header className="header">
       <div className="header__content">
-        <div className="header__logo">SkyproWallet</div>
-        <nav className="header__nav">
+        <div className="header__nav-center">
           <button 
             className={`header__nav-btn ${currentPage === 'expenses' ? 'active' : ''}`}
             onClick={() => handleNavigation('/expenses')}
@@ -42,13 +41,13 @@ const Header = () => {
           >
             Анализ расходов
           </button>
-          <button 
-            className="header__nav-btn header__logout"
-            onClick={handleLogout}
-          >
-            Выйти
-          </button>
-        </nav>
+        </div>
+        <button 
+          className="header__logout"
+          onClick={handleLogout}
+        >
+          Выйти
+        </button>
       </div>
     </header>
   );

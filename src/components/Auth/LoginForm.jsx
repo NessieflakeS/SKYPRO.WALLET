@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../../context/AppContext';
+import { useNotification } from '../../context/NotificationContext';
 import './Auth.css';
-import { validateEmail, validatePassword, validateName } from '../../utils/validation';
 
 const LoginForm = ({ onSwitchToRegister }) => {
   const [formData, setFormData] = useState({
@@ -14,6 +14,7 @@ const LoginForm = ({ onSwitchToRegister }) => {
   const [isLoading, setIsLoading] = useState(false);
 
   const { dispatch } = useApp();
+  const { addNotification } = useNotification();
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -35,29 +36,29 @@ const LoginForm = ({ onSwitchToRegister }) => {
   };
 
   const validateField = (name, value) => {
-  const newErrors = { ...errors };
-  
-  switch (name) {
-    case 'email':
-      if (!validateEmail(value)) {
-        newErrors.email = 'Некорректный email';
-      } else {
-        delete newErrors.email;
-      }
-      break;
-    case 'password':
-      if (!validatePassword(value)) {
-        newErrors.password = 'Пароль должен быть не менее 6 символов';
-      } else {
-        delete newErrors.password;
-      }
-      break;
-    default:
-      break;
-  }
-  
-  setErrors(newErrors);
-};
+    const newErrors = { ...errors };
+    
+    switch (name) {
+      case 'email':
+        if (!value.includes('@')) {
+          newErrors.email = 'Некорректный email';
+        } else {
+          delete newErrors.email;
+        }
+        break;
+      case 'password':
+        if (value.length < 6) {
+          newErrors.password = 'Пароль должен быть не менее 6 символов';
+        } else {
+          delete newErrors.password;
+        }
+        break;
+      default:
+        break;
+    }
+    
+    setErrors(newErrors);
+  };
 
   const isFormValid = formData.email && formData.password && Object.keys(errors).length === 0;
 
@@ -74,10 +75,11 @@ const LoginForm = ({ onSwitchToRegister }) => {
       if (formData.password.length >= 6) {
         const user = {
           email: formData.email,
-          name: formData.email.split('@')[0] 
+          name: formData.email.split('@')[0]
         };
         
         dispatch({ type: 'LOGIN_SUCCESS', payload: user });
+        addNotification('Вход выполнен успешно', 'success');
         navigate('/expenses');
       } else {
         setErrors({ submit: 'Неверный email или пароль' });
@@ -90,9 +92,8 @@ const LoginForm = ({ onSwitchToRegister }) => {
   };
 
   return (
-    <div className="auth-container">
-      <h2>Вход</h2>
-      <form onSubmit={handleSubmit} className="auth-form">
+    <div className="auth-form">
+      <form onSubmit={handleSubmit} className="auth-form__content">
         <div className={`input-group ${errors.email ? 'error' : formData.email ? 'valid' : ''}`}>
           <input
             type="email"
@@ -132,13 +133,17 @@ const LoginForm = ({ onSwitchToRegister }) => {
         </button>
       </form>
       
-      <button 
-        onClick={onSwitchToRegister}
-        className="switch-button"
-        disabled={isLoading}
-      >
-        Регистрируйтесь здесь
-      </button>
+      <div className="auth-switch">
+        <span>Нужно зарегистрироваться? </span>
+        <button 
+          onClick={onSwitchToRegister}
+          className="switch-button"
+          disabled={isLoading}
+          type="button"
+        >
+          Регистрируйтесь здесь
+        </button>
+      </div>
     </div>
   );
 };

@@ -4,8 +4,8 @@ import { useNotification } from '../../context/NotificationContext';
 import './Expenses.css';
 
 const ExpenseTable = () => {
-    const { expenses, dispatch } = useApp();
-    const { addNotification } = useNotification(); 
+  const { expenses, dispatch } = useApp();
+  const { addNotification } = useNotification();
 
   const handleDelete = (id) => {
     if (window.confirm('Вы уверены, что хотите удалить этот расход?')) {
@@ -14,22 +14,10 @@ const ExpenseTable = () => {
     }
   };
 
-  const getCategoryIcon = (category) => {
-    const icons = {
-      'food': '🍕',
-      'transport': '🚗',
-      'housing': '🏠',
-      'entertainment': '🎬',
-      'education': '📚',
-      'other': '📦'
-    };
-    return icons[category] || '📦';
-  };
-
   const getCategoryName = (category) => {
     const names = {
       'food': 'Еда',
-      'transport': 'Транспорт',
+      'transport': 'Транспорт', 
       'housing': 'Жилье',
       'entertainment': 'Развлечения',
       'education': 'Образование',
@@ -40,17 +28,16 @@ const ExpenseTable = () => {
 
   return (
     <div className="expense-table">
-      <h2 className="table-title">Таблица расходов</h2>
       <div className="table-container">
         {expenses.length > 0 ? (
           <table className="expenses-table">
             <thead>
               <tr>
-                <th>Название</th>
+                <th>Описание</th>
                 <th>Категория</th>
-                <th>Сумма</th>
                 <th>Дата</th>
-                <th>Действия</th>
+                <th>Сумма</th>
+                <th></th>
               </tr>
             </thead>
             <tbody>
@@ -65,13 +52,12 @@ const ExpenseTable = () => {
                     </div>
                   </td>
                   <td className="expense-category">
-                    <span className="category-icon">{getCategoryIcon(expense.category)}</span>
                     {getCategoryName(expense.category)}
                   </td>
-                  <td className="expense-amount">{expense.amount.toLocaleString()} ₽</td>
                   <td className="expense-date">
                     {new Date(expense.date).toLocaleDateString('ru-RU')}
                   </td>
+                  <td className="expense-amount">{expense.amount.toLocaleString('ru-RU')} ₽</td>
                   <td className="expense-actions">
                     <button 
                       className="delete-button"
@@ -94,7 +80,7 @@ const ExpenseTable = () => {
         {expenses.length > 0 && (
           <div className="expenses-summary">
             <p><strong>Всего расходов:</strong> {expenses.length}</p>
-            <p><strong>Общая сумма:</strong> {expenses.reduce((sum, expense) => sum + expense.amount, 0).toLocaleString()} ₽</p>
+            <p><strong>Общая сумма:</strong> {expenses.reduce((sum, expense) => sum + expense.amount, 0).toLocaleString('ru-RU')} ₽</p>
           </div>
         )}
       </div>

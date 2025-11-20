@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../../context/AppContext';
+import { useNotification } from '../../context/NotificationContext';
 import './Auth.css';
-import { validateEmail, validatePassword, validateName } from '../../utils/validation';
 
 const RegisterForm = ({ onSwitchToLogin }) => {
   const [formData, setFormData] = useState({
@@ -16,6 +16,7 @@ const RegisterForm = ({ onSwitchToLogin }) => {
   const [isLoading, setIsLoading] = useState(false);
 
   const { dispatch } = useApp();
+  const { addNotification } = useNotification();
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -45,13 +46,6 @@ const RegisterForm = ({ onSwitchToLogin }) => {
           newErrors.name = 'Имя обязательно';
         } else {
           delete newErrors.name;
-        }
-        break;
-        case 'name':
-        if (!validateName(value)) {
-            newErrors.name = 'Имя должно содержать не менее 2 символов';
-        } else {
-            delete newErrors.name;
         }
         break;
       case 'email':
@@ -107,6 +101,7 @@ const RegisterForm = ({ onSwitchToLogin }) => {
       };
       
       dispatch({ type: 'REGISTER_SUCCESS', payload: user });
+      addNotification('Регистрация выполнена успешно', 'success');
       navigate('/expenses');
     } catch (error) {
       setErrors({ submit: 'Ошибка при регистрации' });
@@ -116,9 +111,8 @@ const RegisterForm = ({ onSwitchToLogin }) => {
   };
 
   return (
-    <div className="auth-container">
-      <h2>Регистрация</h2>
-      <form onSubmit={handleSubmit} className="auth-form">
+    <div className="auth-form">
+      <form onSubmit={handleSubmit} className="auth-form__content">
         <div className={`input-group ${errors.name ? 'error' : formData.name ? 'valid' : ''}`}>
           <input
             type="text"
@@ -184,13 +178,17 @@ const RegisterForm = ({ onSwitchToLogin }) => {
         </button>
       </form>
       
-      <button 
-        onClick={onSwitchToLogin}
-        className="switch-button"
-        disabled={isLoading}
-      >
-        Войдите здесь
-      </button>
+      <div className="auth-switch">
+        <span>Уже есть аккаунт? </span>
+        <button 
+          onClick={onSwitchToLogin}
+          className="switch-button"
+          disabled={isLoading}
+          type="button"
+        >
+          Войдите здесь
+        </button>
+      </div>
     </div>
   );
 };

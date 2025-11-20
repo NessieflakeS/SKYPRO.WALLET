@@ -212,6 +212,34 @@
   color: #666;
 }
 
+.expenses-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.expenses-table th {
+  background-color: #f8f9fa;
+  padding: 16px 12px;
+  text-align: left;
+  font-weight: 600;
+  color: #333;
+  border-bottom: 2px solid #e0e0e0;
+}
+
+.expenses-table td {
+  padding: 16px 12px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.expenses-table tr:last-child td {
+  border-bottom: none;
+}
+
+.expenses-table tr:hover {
+  background-color: #f8f9fa;
+}
+
 @media (max-width: 768px) {
   .category-grid {
     grid-template-columns: 1fr;

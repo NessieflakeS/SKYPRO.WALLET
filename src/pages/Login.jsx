@@ -12,11 +12,13 @@ const Login = () => {
 
   return (
     <div className="page login-page">
-      <div className="auth-container">
-        <h1 className="auth-title">SkyproWallet</h1>
-        <LoginForm 
-          onSwitchToRegister={handleSwitchToRegister}
-        />
+      <div className="auth-wrapper">
+        <div className="auth-form-container">
+          <h2 className="auth-form-title">Вход</h2>
+          <LoginForm 
+            onSwitchToRegister={handleSwitchToRegister}
+          />
+        </div>
       </div>
     </div>
   );

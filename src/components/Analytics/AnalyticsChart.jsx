@@ -18,15 +18,13 @@ const AnalyticsChart = () => {
   );
   
   const totalAmount = filteredExpenses.reduce((sum, expense) => sum + expense.amount, 0);
-  
   const categoryTotals = calculateCategoryTotals(filteredExpenses);
-  
   const chartData = getCategoryDataForChart(categoryTotals, totalAmount);
+
+  const maxAmount = Math.max(...chartData.map(item => item.amount), 1);
 
   return (
     <div className="analytics-chart">
-      <h2 className="chart-title">Анализ расходов</h2>
-      
       <div className="chart-container">
         <div className="chart-summary">
           <div className="total-amount">
@@ -35,51 +33,32 @@ const AnalyticsChart = () => {
           </div>
           <div className="period-display">
             <h3>Период</h3>
-            <p>{formatDateRange(analyticsPeriod.startDate, analyticsPeriod.endDate)}</p>
+            <p className="period-text">{formatDateRange(analyticsPeriod.startDate, analyticsPeriod.endDate)}</p>
           </div>
         </div>
 
         <div className="chart-content">
           {filteredExpenses.length > 0 ? (
-            <>
-              <div className="chart-bars">
+            <div className="bar-chart-container">
+              <div className="bar-chart">
                 {chartData.map(item => (
-                  <div key={item.category} className="chart-bar-item">
-                    <div className="bar-label">
-                      <span className="category-name">{item.category}</span>
-                      <span className="category-amount">
-                        {item.amount.toLocaleString('ru-RU')} ₽ ({item.percentage}%)
-                      </span>
-                    </div>
-                    <div className="bar-container">
+                  <div key={item.category} className="bar-chart-item">
+                    <div className="bar-wrapper">
                       <div 
-                        className="bar-fill"
+                        className="bar"
                         style={{ 
-                          width: `${item.percentage}%`,
+                          height: `${(item.amount / maxAmount) * 80}%`,
                           backgroundColor: item.color
                         }}
-                      ></div>
+                      >
+                        <span className="bar-amount">{item.amount > 0 ? `${item.amount.toLocaleString('ru-RU')} ₽` : ''}</span>
+                      </div>
                     </div>
+                    <div className="bar-label">{item.category}</div>
                   </div>
                 ))}
               </div>
-
-              <div className="chart-legend">
-                <h3>Распределение по категориям</h3>
-                <div className="legend-items">
-                  {chartData.map(item => (
-                    <div key={item.category} className="legend-item">
-                      <div 
-                        className="legend-color" 
-                        style={{ backgroundColor: item.color }}
-                      ></div>
-                      <span className="legend-label">{item.category}</span>
-                      <span className="legend-percentage">{item.percentage}%</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </>
+            </div>
           ) : (
             <div className="no-data">
               <p>Нет данных за выбранный период</p>

@@ -15,16 +15,13 @@
   margin: 0 auto;
 }
 
-.header__logo {
-  font-size: 24px;
-  font-weight: 700;
-  color: #8A2BE2;
-}
-
-.header__nav {
+.header__nav-center {
   display: flex;
-  gap: 30px;
+  gap: 50px;
   align-items: center;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
 }
 
 .header__nav-btn {
@@ -56,6 +53,17 @@
   right: 0;
   height: 2px;
   background-color: #8A2BE2;
+}
+
+.header__logout {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  color: #333;
+  font-weight: 700;
+  transition: color 0.3s ease;
+  padding: 8px 16px;
 }
 
 .header__logout:hover {
