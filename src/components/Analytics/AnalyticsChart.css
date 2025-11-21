@@ -89,7 +89,6 @@
   background: transparent;
 }
 
-/* Стили для скроллбара */
 .calendar-months-scroll::-webkit-scrollbar {
   width: 6px;
 }
