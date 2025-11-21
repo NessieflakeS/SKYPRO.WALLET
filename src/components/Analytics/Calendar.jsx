@@ -1,22 +1,27 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
-import './AnalyticsChart.css';
+import './Calendar.css';
 
 const Calendar = () => {
   const { analyticsPeriod, dispatch } = useApp();
-  const [currentMonth, setCurrentMonth] = useState(new Date().getMonth());
-  const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
+  const [currentYear] = useState(new Date().getFullYear());
 
   const daysOfWeek = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
   
   const months = [
-    'Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
-    'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'
+    { name: 'Январь', days: 31 },
+    { name: 'Февраль', days: currentYear % 4 === 0 ? 29 : 28 },
+    { name: 'Март', days: 31 },
+    { name: 'Апрель', days: 30 },
+    { name: 'Май', days: 31 },
+    { name: 'Июнь', days: 30 },
+    { name: 'Июль', days: 31 },
+    { name: 'Август', days: 31 },
+    { name: 'Сентябрь', days: 30 },
+    { name: 'Октябрь', days: 31 },
+    { name: 'Ноябрь', days: 30 },
+    { name: 'Декабрь', days: 31 }
   ];
-
-  const getDaysInMonth = (month, year) => {
-    return new Date(year, month + 1, 0).getDate();
-  };
 
   const getFirstDayOfMonth = (month, year) => {
     const day = new Date(year, month, 1).getDay();
@@ -38,22 +43,21 @@ const Calendar = () => {
     return analyticsPeriod.startDate === date.toISOString().split('T')[0];
   };
 
-  const renderCalendar = () => {
-    const daysInMonth = getDaysInMonth(currentMonth, currentYear);
-    const firstDay = getFirstDayOfMonth(currentMonth, currentYear);
+  const renderMonth = (monthIndex, monthName, daysInMonth) => {
+    const firstDay = getFirstDayOfMonth(monthIndex, currentYear);
     const days = [];
 
     for (let i = 0; i < firstDay; i++) {
-      days.push(<div key={`empty-${i}`} className="calendar-day empty"></div>);
+      days.push(<div key={`empty-${monthIndex}-${i}`} className="calendar-day empty"></div>);
     }
 
     for (let day = 1; day <= daysInMonth; day++) {
-      const date = new Date(currentYear, currentMonth, day);
+      const date = new Date(currentYear, monthIndex, day);
       const selected = isSelected(date);
       
       days.push(
         <div
-          key={day}
+          key={`${monthIndex}-${day}`}
           className={`calendar-day ${selected ? 'selected' : ''}`}
           onClick={() => handleDateSelect(date)}
         >
@@ -65,42 +69,25 @@ const Calendar = () => {
     return days;
   };
 
-  const handlePrevMonth = () => {
-    if (currentMonth === 0) {
-      setCurrentMonth(11);
-      setCurrentYear(currentYear - 1);
-    } else {
-      setCurrentMonth(currentMonth - 1);
-    }
-  };
-
-  const handleNextMonth = () => {
-    if (currentMonth === 11) {
-      setCurrentMonth(0);
-      setCurrentYear(currentYear + 1);
-    } else {
-      setCurrentMonth(currentMonth + 1);
-    }
-  };
-
   return (
     <div className="calendar">
-      <div className="calendar-header">
-        <h3 className="calendar-title">Период</h3>
-        <div className="calendar-nav">
-          <button onClick={handlePrevMonth} className="calendar-nav-btn">←</button>
-          <span className="calendar-month">{months[currentMonth]} {currentYear}</span>
-          <button onClick={handleNextMonth} className="calendar-nav-btn">→</button>
-        </div>
-      </div>
-
-      <div className="calendar-grid">
-        {daysOfWeek.map(day => (
-          <div key={day} className="calendar-weekday">
-            {day}
+      <h3 className="calendar-title">Период</h3>
+      <div className="calendar-months-scroll">
+        {months.map((month, index) => (
+          <div key={index} className="calendar-month">
+            <div className="month-header">
+              {month.name} {currentYear}
+            </div>
+            <div className="calendar-grid">
+              {daysOfWeek.map(day => (
+                <div key={`${index}-${day}`} className="calendar-weekday">
+                  {day}
+                </div>
+              ))}
+              {renderMonth(index, month.name, month.days)}
+            </div>
           </div>
         ))}
-        {renderCalendar()}
       </div>
     </div>
   );
