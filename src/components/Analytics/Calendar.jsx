@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
-import './AnalyticsChart.css';
+import './Calendar.css';
 
 const Calendar = () => {
   const { analyticsPeriod, dispatch } = useApp();
@@ -23,6 +23,19 @@ const Calendar = () => {
     { name: 'Декабрь', days: 31 }
   ];
 
+  useEffect(() => {
+    const today = new Date().toISOString().split('T')[0];
+    if (!analyticsPeriod.startDate) {
+      dispatch({
+        type: 'SET_ANALYTICS_PERIOD',
+        payload: {
+          startDate: today,
+          endDate: today
+        }
+      });
+    }
+  }, [analyticsPeriod.startDate, dispatch]);
+
   const getFirstDayOfMonth = (month, year) => {
     const day = new Date(year, month, 1).getDay();
     return day === 0 ? 6 : day - 1;
@@ -43,6 +56,13 @@ const Calendar = () => {
     return analyticsPeriod.startDate === date.toISOString().split('T')[0];
   };
 
+  const isToday = (date) => {
+    const today = new Date();
+    return date.getDate() === today.getDate() && 
+           date.getMonth() === today.getMonth() && 
+           date.getFullYear() === today.getFullYear();
+  };
+
   const renderMonth = (monthIndex, monthName, daysInMonth) => {
     const firstDay = getFirstDayOfMonth(monthIndex, currentYear);
     const days = [];
@@ -54,11 +74,12 @@ const Calendar = () => {
     for (let day = 1; day <= daysInMonth; day++) {
       const date = new Date(currentYear, monthIndex, day);
       const selected = isSelected(date);
+      const today = isToday(date);
       
       days.push(
         <div
           key={`${monthIndex}-${day}`}
-          className={`calendar-day ${selected ? 'selected' : ''}`}
+          className={`calendar-day ${selected ? 'selected' : ''} ${today ? 'today' : ''}`}
           onClick={() => handleDateSelect(date)}
         >
           {day}

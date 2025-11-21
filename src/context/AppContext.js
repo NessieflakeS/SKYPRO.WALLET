@@ -6,8 +6,8 @@ const initialState = {
   isAuthenticated: false,
   currentPage: 'login',
   analyticsPeriod: {
-    startDate: new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0], // Первое число текущего месяца
-    endDate: new Date().toISOString().split('T')[0] // Сегодня
+    startDate: new Date().toISOString().split('T')[0], 
+    endDate: new Date().toISOString().split('T')[0] 
   }
 };
 

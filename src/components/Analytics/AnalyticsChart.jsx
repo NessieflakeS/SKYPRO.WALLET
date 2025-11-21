@@ -22,7 +22,8 @@ const AnalyticsChart = () => {
   const chartData = getCategoryDataForChart(categoryTotals, totalAmount);
   
   const maxAmount = Math.max(...chartData.map(item => item.amount), 1);
-  const minVisibleAmount = Math.max(maxAmount * 0.05, 500); 
+  
+  const minHeightPercent = 5;
   
   const categoryColors = {
     'Еда': '#D9B6FF',
@@ -31,6 +32,13 @@ const AnalyticsChart = () => {
     'Развлечения': '#B0AEFF',
     'Образование': '#BCEC30',
     'Другое': '#FFB9B8'
+  };
+
+  const calculateBarHeight = (amount) => {
+    if (amount === 0) return 0;
+    
+    const calculatedHeight = (amount / maxAmount) * 100;
+    return Math.max(calculatedHeight, minHeightPercent);
   };
 
   return (
@@ -45,24 +53,25 @@ const AnalyticsChart = () => {
       </div>
       
       <div className="chart-bars">
-        {chartData.map((item, index) => {
-          const baseHeight = (item.amount / maxAmount) * 100;
-          const adjustedHeight = Math.max(baseHeight, (minVisibleAmount / maxAmount) * 100);
+        {chartData.map((item) => {
+          const barHeight = calculateBarHeight(item.amount);
           
           return (
             <div key={item.category} className="chart-column">
               <div className="chart-bar-container">
-                <div 
-                  className="chart-bar"
-                  style={{
-                    height: `${adjustedHeight}%`,
-                    backgroundColor: categoryColors[item.category] || '#CCCCCC'
-                  }}
-                >
-                  <div className="chart-amount-on-bar">
-                    {item.amount > 0 ? `${item.amount.toLocaleString('ru-RU')} ₽` : ''}
+                {barHeight > 0 && (
+                  <div 
+                    className="chart-bar"
+                    style={{
+                      height: `${barHeight}%`,
+                      backgroundColor: categoryColors[item.category] || '#CCCCCC'
+                    }}
+                  >
+                    <div className="chart-amount-on-bar">
+                      {item.amount.toLocaleString('ru-RU')} ₽
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
               <div className="chart-label">{item.category}</div>
             </div>
