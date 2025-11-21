@@ -27,7 +27,6 @@ const Header = () => {
     <header className="header">
       <div className="header-logo" onClick={handleLogoClick}>
         <img src="/favicon.png" alt="SkyproWallet" />
-        <span>Skypro.Wallet</span>
       </div>
 
       {!isAuthPage && isAuthenticated && (
