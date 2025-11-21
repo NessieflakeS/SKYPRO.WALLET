@@ -6,7 +6,7 @@ import {
   getCategoryDataForChart,
   formatDateRange 
 } from '../../utils/analyticsUtils';
-import './Analytics.css';
+import './AnalyticsChart.css';
 
 const AnalyticsChart = () => {
   const { expenses, analyticsPeriod } = useApp();
@@ -46,6 +46,7 @@ const AnalyticsChart = () => {
       <div className="chart-bars">
         {chartData.map((item, index) => (
           <div key={item.category} className="chart-column">
+            <div className="chart-amount">{item.amount.toLocaleString('ru-RU')} ₽</div>
             <div className="chart-bar-container">
               <div 
                 className="chart-bar"
@@ -56,7 +57,6 @@ const AnalyticsChart = () => {
               />
             </div>
             <div className="chart-label">{item.category}</div>
-            <div className="chart-amount">{item.amount.toLocaleString('ru-RU')} ₽</div>
           </div>
         ))}
       </div>

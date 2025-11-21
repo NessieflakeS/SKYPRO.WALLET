@@ -30,17 +30,17 @@
 
 .expenses-layout {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 6fr 1fr;
   gap: 54px;
   align-items: start;
-  max-width: 1200px;
   margin: 0 auto;
+  justify-items: start;
 }
 
 .expenses-main-title {
   font-size: 32px;
   font-weight: 600;
-  margin: 36px 0 34px 98px;
+  margin: 36px 0 34px 120px;
   text-align: left;
   color: #333;
 }
@@ -53,23 +53,19 @@
   color: #333;
 }
 
-.expenses-table-section {
-  margin-left: 98px;
-}
-
 .analytics-layout {
   display: grid;
-  grid-template-columns: 400px 1fr;
+  grid-template-columns: 1fr 6fr;
   gap: 32px;
   align-items: start;
-  max-width: 1200px;
   margin: 0 auto;
+  justify-items: end;
 }
 
 .analytics-main-title {
   font-size: 32px;
   font-weight: 600;
-  margin: 36px 0 34px 98px;
+  margin: 36px 0 34px 120px;
   text-align: left;
   color: #333;
 }
@@ -79,12 +75,11 @@
 }
 
 .chart-section {
-  margin-right: 40px;
+  margin-right: 120px;
 }
 
 .page-content {
   padding: 20px;
-  max-width: 1400px;
   margin: 0 auto;
 }
 

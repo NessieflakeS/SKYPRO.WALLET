@@ -3,6 +3,8 @@
   padding: 24px;
   border-radius: 30px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  width: 379px;
+  height: 540px;
 }
 
 .calendar-header {
@@ -100,16 +102,19 @@
   height: 400px;
   display: flex;
   flex-direction: column;
+  width: 789px;
+  height: 540px;
 }
 
 .chart-header {
-  text-align: center;
+  text-align: start;
   margin-bottom: 21px;
 }
 
 .total-amount {
-  font-size: 32px;
-  font-weight: 600;
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 29px;
   color: #333;
   margin-bottom: 12px;
 }
@@ -160,7 +165,9 @@
 }
 
 .chart-amount {
-  font-size: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 20px;
   color: #666;
 }
 
