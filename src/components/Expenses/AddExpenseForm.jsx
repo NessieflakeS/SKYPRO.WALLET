@@ -3,7 +3,6 @@ import { useApp } from '../../context/AppContext';
 import { useNotification } from '../../context/NotificationContext';
 import { validateAmount } from '../../utils/validation';
 import './Expenses.css';
-
 import FoodIcon from './icons/Еда.svg';
 import TransportIcon from './icons/Транспорт.svg';
 import HousingIcon from './icons/Жилье.svg';

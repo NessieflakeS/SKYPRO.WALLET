@@ -32,9 +32,8 @@
   display: grid;
   grid-template-columns: 1fr 6fr;
   gap: 54px;
-  align-items: start;
   margin: 0 auto;
-  justify-items: start;
+  justify-items: end;
 }
 
 .expenses-main-title {

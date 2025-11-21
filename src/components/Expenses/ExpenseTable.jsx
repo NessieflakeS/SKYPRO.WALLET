@@ -1,6 +1,7 @@
 import React from 'react';
 import { useApp } from '../../context/AppContext';
-import './Expenses.css';
+import './ExpenseTable.css';
+import DeleteIcon from './icons/Удаление.svg';
 
 const ExpenseTable = () => {
   const { expenses, dispatch } = useApp();
@@ -48,9 +49,7 @@ const ExpenseTable = () => {
                     className="delete-btn"
                     onClick={() => handleDeleteExpense(expense.id)}
                   >
-                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M1.5 1.5L10.5 10.5M1.5 10.5L10.5 1.5" stroke="#666" strokeWidth="2" strokeLinecap="round"/>
-                    </svg>
+                    <img src={DeleteIcon} alt="Удалить" className="delete-icon" />
                   </button>
                 </td>
               </tr>
