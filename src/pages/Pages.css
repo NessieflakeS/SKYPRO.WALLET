@@ -30,7 +30,7 @@
 
 .expenses-layout {
   display: grid;
-  grid-template-columns: 6fr 1fr;
+  grid-template-columns: 1fr 6fr;
   gap: 54px;
   align-items: start;
   margin: 0 auto;
