@@ -1,6 +1,6 @@
 import React from 'react';
 import { useApp } from '../../context/AppContext';
-import './ExpenseTable.css';
+import './Expenses.css';
 import DeleteIcon from './icons/Удаление.svg';
 
 const ExpenseTable = () => {
