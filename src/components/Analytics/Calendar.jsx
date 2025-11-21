@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
-import './Calendar.css';
+import './AnalyticsChart.css';
 
 const Calendar = () => {
   const { analyticsPeriod, dispatch } = useApp();
