@@ -182,7 +182,3 @@ UI/UX дизайн
 
 📄 Лицензия
 MIT License - смотрите файл LICENSE для деталей.
-
-<div align="center">
-Сделано с ❤️ для Skypro
-</div> ```
