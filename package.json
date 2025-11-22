@@ -1,0 +1,48 @@
+{
+  "name": "skypro-wallet",
+  "version": "1.0.0",
+  "prettier": {
+    "semi": true,
+    "singleQuote": true,
+    "tabWidth": 2,
+    "trailingComma": "es5",
+    "printWidth": 80,
+    "bracketSpacing": true,
+    "arrowParens": "avoid",
+    "endOfLine": "lf"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "lint": "eslint src --ext .js,.jsx",
+    "lint:fix": "eslint src --ext .js,.jsx --fix",
+    "format": "prettier --write src/**/*.{js,jsx,css}",
+    "format:check": "prettier --check src/**/*.{js,jsx,css}",
+    "validate": "npm run lint && npm run format:check"
+  },
+  "dependencies": {
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "react-router-dom": "^7.9.6",
+    "react-scripts": "^5.0.1"
+  },
+  "devDependencies": {
+    "eslint": "^8.57.0",
+    "eslint-plugin-react": "^7.34.1",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "prettier": "^3.2.5"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}

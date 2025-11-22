@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
-import './Auth.css';
+import { useApp } from '../../context/AppContext';
+import { useNotification } from '../../context/NotificationContext';
+import { validateEmail, validatePassword } from '../../utils/validation';
+import './AuthForms.css';
 
-const LoginForm = ({ onSwitchToRegister, onLoginSuccess }) => {
+const LoginForm = ({ onSwitchToRegister }) => {
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -9,103 +12,122 @@ const LoginForm = ({ onSwitchToRegister, onLoginSuccess }) => {
   const [errors, setErrors] = useState({});
   const [touched, setTouched] = useState({});
 
+  const { dispatch } = useApp();
+  const { addNotification } = useNotification();
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
       [name]: value
     }));
-    
 
-    if (touched[name]) {
-      validateField(name, value);
+    if (errors[name]) {
+      setErrors(prev => ({
+        ...prev,
+        [name]: ''
+      }));
     }
   };
 
   const handleBlur = (e) => {
-    const { name } = e.target;
-    setTouched(prev => ({ ...prev, [name]: true }));
-    validateField(name, formData[name]);
+    const { name, value } = e.target;
+    setTouched(prev => ({
+      ...prev,
+      [name]: true
+    }));
+
+    let error = '';
+    if (name === 'email' && !validateEmail(value)) {
+      error = 'Invalid email';
+    } else if (name === 'password' && !validatePassword(value)) {
+      error = 'Password must be at least 6 characters';
+    }
+
+    setErrors(prev => ({
+      ...prev,
+      [name]: error
+    }));
   };
 
-  const validateField = (name, value) => {
-    const newErrors = { ...errors };
+  const validateForm = () => {
+    const newErrors = {};
     
-    switch (name) {
-      case 'email':
-        if (!value.includes('@')) {
-          newErrors.email = 'Некорректный email';
-        } else {
-          delete newErrors.email;
-        }
-        break;
-      case 'password':
-        if (value.length < 6) {
-          newErrors.password = 'Пароль должен быть не менее 6 символов';
-        } else {
-          delete newErrors.password;
-        }
-        break;
-      default:
-        break;
+    if (!validateEmail(formData.email)) {
+      newErrors.email = 'Invalid email';
     }
     
-    setErrors(newErrors);
-  };
+    if (!validatePassword(formData.password)) {
+      newErrors.password = 'Password must be at least 6 characters';
+    }
 
-  const isFormValid = formData.email && formData.password && Object.keys(errors).length === 0;
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (isFormValid) {
-      onLoginSuccess();
+    
+    if (!validateForm()) {
+      addNotification('Упс! Введенные данные некорректны. Введите данные корректно и повторите попытку.', 'error');
+      return;
     }
+
+    const user = {
+      id: '1',
+      email: formData.email,
+      name: 'User'
+    };
+    
+    dispatch({ type: 'LOGIN_SUCCESS', payload: user });
+    addNotification('Вход выполнен успешно!', 'success');
   };
 
-  return (
-    <div className="auth-container">
-      <h2>Вход</h2>
-      <form onSubmit={handleSubmit} className="auth-form">
-        <div className={`input-group ${errors.email ? 'error' : formData.email ? 'valid' : ''}`}>
-          <input
-            type="email"
-            name="email"
-            placeholder="Эл. почта"
-            value={formData.email}
-            onChange={handleChange}
-            onBlur={handleBlur}
-          />
-          {errors.email && <span className="error-icon">*</span>}
-        </div>
-        
-        <div className={`input-group ${errors.password ? 'error' : formData.password ? 'valid' : ''}`}>
-          <input
-            type="password"
-            name="password"
-            placeholder="Пароль"
-            value={formData.password}
-            onChange={handleChange}
-            onBlur={handleBlur}
-          />
-          {errors.password && <span className="error-icon">*</span>}
-        </div>
+  const hasErrors = Object.values(errors).some(error => error) || 
+                   !formData.email || 
+                   !formData.password;
 
-        <button 
-          type="submit" 
-          className={`auth-button ${isFormValid ? 'active' : 'inactive'}`}
-          disabled={!isFormValid}
-        >
-          Войти
-        </button>
-      </form>
-      
+  return (
+    <form className="auth-form" onSubmit={handleSubmit}>
+      <div className="form-group">
+        <input
+          type="email"
+          name="email"
+          placeholder="Email"
+          value={formData.email}
+          onChange={handleChange}
+          onBlur={handleBlur}
+          className={`auth-input ${errors.email ? 'error' : touched.email && formData.email && !errors.email ? 'valid' : ''}`}
+        />
+      </div>
+
+      <div className="form-group">
+        <input
+          type="password"
+          name="password"
+          placeholder="Пароль"
+          value={formData.password}
+          onChange={handleChange}
+          onBlur={handleBlur}
+          className={`auth-input ${errors.password ? 'error' : touched.password && formData.password && !errors.password ? 'valid' : ''}`}
+        />
+      </div>
+
       <button 
-        onClick={onSwitchToRegister}
-        className="switch-button"
+        type="submit" 
+        className={`auth-submit-btn ${hasErrors ? 'disabled' : ''}`}
+        disabled={hasErrors}
       >
-        Регистрируйтесь здесь
+        Войти
       </button>
-    </div>
+
+      <div className="auth-switch">
+        <span className="auth-switch-text">Нет аккаунта? </span>
+        <span className="auth-switch-link" onClick={onSwitchToRegister}>
+          Регистрируйтесь здесь
+        </span>
+      </div>
+    </form>
   );
 };
 
