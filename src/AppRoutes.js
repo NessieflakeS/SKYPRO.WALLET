@@ -1,11 +1,11 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { useApp } from '../context/AppContext';
-import RouteTracker from './RouteTracker';
-import Login from '../pages/Login';
-import Register from '../pages/Register';
-import Expenses from '../pages/Expenses';
-import Analytics from '../pages/Analytics';
+import { useApp } from './context/AppContext'; 
+import RouteTracker from './components/RouteTracker'; 
+import Login from './pages/Login';
+import Register from './pages/Register'; 
+import Expenses from './pages/Expenses'; 
+import Analytics from './pages/Analytics';
 
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated } = useApp();
