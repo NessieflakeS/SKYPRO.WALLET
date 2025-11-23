@@ -31,45 +31,41 @@ const LoginForm = ({ onSwitchToRegister }) => {
   };
 
   const handleBlur = (e) => {
-  const { name, value } = e.target;
-  setTouched(prev => ({
-    ...prev,
-    [name]: true
-  }));
+    const { name, value } = e.target;
+    setTouched(prev => ({
+      ...prev,
+      [name]: true
+    }));
 
-  if (value.trim()) {
-    let error = '';
-    if (name === 'email' && !validateEmail(value)) {
-      error = 'Некорректный email';
-    } else if (name === 'password' && !validatePassword(value)) {
-      error = 'Пароль должен содержать не менее 6 символов';
-    } else if (name === 'name' && !validateName(value)) {
-      error = 'Имя должно содержать не менее 2 символов';
-    } else if (name === 'confirmPassword' && value !== formData.password) {
-      error = 'Пароли не совпадают';
+    if (value.trim()) {
+      let error = '';
+      if (name === 'email' && !validateEmail(value)) {
+        error = 'Некорректный email';
+      } else if (name === 'password' && !validatePassword(value)) {
+        error = 'Пароль должен содержать не менее 6 символов';
+      }
+
+      setErrors(prev => ({
+        ...prev,
+        [name]: error
+      }));
+    } else {
+      setErrors(prev => ({
+        ...prev,
+        [name]: ''
+      }));
     }
-
-    setErrors(prev => ({
-      ...prev,
-      [name]: error
-    }));
-  } else {
-    setErrors(prev => ({
-      ...prev,
-      [name]: ''
-    }));
-  }
-};
+  };
 
   const validateForm = () => {
     const newErrors = {};
     
     if (!validateEmail(formData.email)) {
-      newErrors.email = 'Invalid email';
+      newErrors.email = 'Некорректный email';
     }
     
     if (!validatePassword(formData.password)) {
-      newErrors.password = 'Password must be at least 6 characters';
+      newErrors.password = 'Пароль должен содержать не менее 6 символов';
     }
 
     setErrors(newErrors);
@@ -95,8 +91,8 @@ const LoginForm = ({ onSwitchToRegister }) => {
   };
 
   const hasErrors = Object.values(errors).some(error => error) || 
-                 !formData.email.trim() || 
-                 !formData.password.trim();
+                   !formData.email.trim() || 
+                   !formData.password.trim();
 
   return (
     <form className="auth-form" onSubmit={handleSubmit}>

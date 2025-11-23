@@ -13,12 +13,6 @@ const initialState = {
 
 const appReducer = (state, action) => {
   switch (action.type) {
-    case 'LOAD_EXPENSES':
-      return {
-        ...state,
-        expenses: action.payload
-      };
-
     case 'LOGIN_SUCCESS':
       return {
         ...state,
@@ -58,6 +52,12 @@ const appReducer = (state, action) => {
         expenses: state.expenses.filter(expense => expense.id !== action.payload)
       };
     
+    case 'LOAD_EXPENSES':
+      return {
+        ...state,
+        expenses: action.payload
+      };
+    
     case 'SET_CURRENT_PAGE':
       return {
         ...state,
@@ -90,7 +90,6 @@ export const AppProvider = ({ children }) => {
     
     if (savedExpenses) {
       const parsedExpenses = JSON.parse(savedExpenses);
-      console.log('Loaded expenses:', parsedExpenses);
       dispatch({ type: 'LOAD_EXPENSES', payload: parsedExpenses });
     }
   }, []);
@@ -98,8 +97,7 @@ export const AppProvider = ({ children }) => {
   useEffect(() => {
     if (state.user) {
       localStorage.setItem('skyproWallet_user', JSON.stringify(state.user));
-    } 
-    else {
+    } else {
       localStorage.removeItem('skyproWallet_user');
     }
     
