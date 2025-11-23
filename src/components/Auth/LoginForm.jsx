@@ -10,7 +10,6 @@ const LoginForm = ({ onSwitchToRegister }) => {
     password: ''
   });
   const [errors, setErrors] = useState({});
-  const [touched, setTouched] = useState({});
 
   const { dispatch } = useApp();
   const { addNotification } = useNotification();
@@ -23,33 +22,6 @@ const LoginForm = ({ onSwitchToRegister }) => {
     }));
 
     if (errors[name]) {
-      setErrors(prev => ({
-        ...prev,
-        [name]: ''
-      }));
-    }
-  };
-
-  const handleBlur = (e) => {
-    const { name, value } = e.target;
-    setTouched(prev => ({
-      ...prev,
-      [name]: true
-    }));
-
-    if (value.trim()) {
-      let error = '';
-      if (name === 'email' && !validateEmail(value)) {
-        error = 'Некорректный email';
-      } else if (name === 'password' && !validatePassword(value)) {
-        error = 'Пароль должен содержать не менее 6 символов';
-      }
-
-      setErrors(prev => ({
-        ...prev,
-        [name]: error
-      }));
-    } else {
       setErrors(prev => ({
         ...prev,
         [name]: ''
@@ -90,10 +62,6 @@ const LoginForm = ({ onSwitchToRegister }) => {
     addNotification('Вход выполнен успешно!', 'success');
   };
 
-  const hasErrors = Object.values(errors).some(error => error) || 
-                   !formData.email.trim() || 
-                   !formData.password.trim();
-
   return (
     <form className="auth-form" onSubmit={handleSubmit}>
       <div className="form-group">
@@ -103,9 +71,9 @@ const LoginForm = ({ onSwitchToRegister }) => {
           placeholder="Email"
           value={formData.email}
           onChange={handleChange}
-          onBlur={handleBlur}
-          className={`auth-input ${errors.email ? 'error' : touched.email && formData.email && !errors.email ? 'valid' : ''}`}
+          className={`auth-input ${errors.email ? 'error' : ''}`}
         />
+        {errors.email && <span className="error-text">{errors.email}</span>}
       </div>
 
       <div className="form-group">
@@ -115,16 +83,12 @@ const LoginForm = ({ onSwitchToRegister }) => {
           placeholder="Пароль"
           value={formData.password}
           onChange={handleChange}
-          onBlur={handleBlur}
-          className={`auth-input ${errors.password ? 'error' : touched.password && formData.password && !errors.password ? 'valid' : ''}`}
+          className={`auth-input ${errors.password ? 'error' : ''}`}
         />
+        {errors.password && <span className="error-text">{errors.password}</span>}
       </div>
 
-      <button 
-        type="submit" 
-        className={`auth-submit-btn ${hasErrors ? 'disabled' : ''}`}
-        disabled={hasErrors}
-      >
+      <button type="submit" className="auth-submit-btn">
         Войти
       </button>
 

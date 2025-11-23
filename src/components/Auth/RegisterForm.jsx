@@ -12,7 +12,6 @@ const RegisterForm = ({ onSwitchToLogin }) => {
     confirmPassword: ''
   });
   const [errors, setErrors] = useState({});
-  const [touched, setTouched] = useState({});
 
   const { dispatch } = useApp();
   const { addNotification } = useNotification();
@@ -30,52 +29,7 @@ const RegisterForm = ({ onSwitchToLogin }) => {
         [name]: ''
       }));
     }
-
-    if (name === 'password' && formData.confirmPassword) {
-      if (value !== formData.confirmPassword) {
-        setErrors(prev => ({
-          ...prev,
-          confirmPassword: 'Пароли не совпадают'
-        }));
-      } else {
-        setErrors(prev => ({
-          ...prev,
-          confirmPassword: ''
-        }));
-      }
-    }
   };
-
-  const handleBlur = (e) => {
-  const { name, value } = e.target;
-  setTouched(prev => ({
-    ...prev,
-    [name]: true
-  }));
-
-  if (value.trim()) {
-    let error = '';
-    if (name === 'email' && !validateEmail(value)) {
-      error = 'Некорректный email';
-    } else if (name === 'password' && !validatePassword(value)) {
-      error = 'Пароль должен содержать не менее 6 символов';
-    } else if (name === 'name' && !validateName(value)) {
-      error = 'Имя должно содержать не менее 2 символов';
-    } else if (name === 'confirmPassword' && value !== formData.password) {
-      error = 'Пароли не совпадают';
-    }
-
-    setErrors(prev => ({
-      ...prev,
-      [name]: error
-    }));
-  } else {
-    setErrors(prev => ({
-      ...prev,
-      [name]: ''
-    }));
-  }
-};
 
   const validateForm = () => {
     const newErrors = {};
@@ -118,12 +72,6 @@ const RegisterForm = ({ onSwitchToLogin }) => {
     addNotification('Регистрация выполнена успешно!', 'success');
   };
 
-  const hasErrors = Object.values(errors).some(error => error) || 
-                   !formData.name || 
-                   !formData.email || 
-                   !formData.password || 
-                   !formData.confirmPassword;
-
   return (
     <form className="auth-form" onSubmit={handleSubmit}>
       <div className="form-group">
@@ -133,9 +81,9 @@ const RegisterForm = ({ onSwitchToLogin }) => {
           placeholder="Имя"
           value={formData.name}
           onChange={handleChange}
-          onBlur={handleBlur}
-          className={`auth-input ${errors.name ? 'error' : touched.name && formData.name && !errors.name ? 'valid' : ''}`}
+          className={`auth-input ${errors.name ? 'error' : ''}`}
         />
+        {errors.name && <span className="error-text">{errors.name}</span>}
       </div>
 
       <div className="form-group">
@@ -145,9 +93,9 @@ const RegisterForm = ({ onSwitchToLogin }) => {
           placeholder="Email"
           value={formData.email}
           onChange={handleChange}
-          onBlur={handleBlur}
-          className={`auth-input ${errors.email ? 'error' : touched.email && formData.email && !errors.email ? 'valid' : ''}`}
+          className={`auth-input ${errors.email ? 'error' : ''}`}
         />
+        {errors.email && <span className="error-text">{errors.email}</span>}
       </div>
 
       <div className="form-group">
@@ -157,9 +105,9 @@ const RegisterForm = ({ onSwitchToLogin }) => {
           placeholder="Пароль"
           value={formData.password}
           onChange={handleChange}
-          onBlur={handleBlur}
-          className={`auth-input ${errors.password ? 'error' : touched.password && formData.password && !errors.password ? 'valid' : ''}`}
+          className={`auth-input ${errors.password ? 'error' : ''}`}
         />
+        {errors.password && <span className="error-text">{errors.password}</span>}
       </div>
 
       <div className="form-group">
@@ -169,16 +117,12 @@ const RegisterForm = ({ onSwitchToLogin }) => {
           placeholder="Подтвердите пароль"
           value={formData.confirmPassword}
           onChange={handleChange}
-          onBlur={handleBlur}
-          className={`auth-input ${errors.confirmPassword ? 'error' : touched.confirmPassword && formData.confirmPassword && !errors.confirmPassword ? 'valid' : ''}`}
+          className={`auth-input ${errors.confirmPassword ? 'error' : ''}`}
         />
+        {errors.confirmPassword && <span className="error-text">{errors.confirmPassword}</span>}
       </div>
 
-      <button 
-        type="submit" 
-        className={`auth-submit-btn ${hasErrors ? 'disabled' : ''}`}
-        disabled={hasErrors}
-      >
+      <button type="submit" className="auth-submit-btn">
         Зарегистрироваться
       </button>
 

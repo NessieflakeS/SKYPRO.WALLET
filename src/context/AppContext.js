@@ -4,7 +4,7 @@ const initialState = {
   user: null,
   expenses: [],
   isAuthenticated: false,
-  currentPage: 'login',
+  currentPath: '/expenses',
   analyticsPeriod: {
     startDate: new Date().toISOString().split('T')[0], 
     endDate: new Date().toISOString().split('T')[0] 
@@ -38,18 +38,20 @@ const appReducer = (state, action) => {
       };
     
     case 'ADD_EXPENSE':
+      const newExpenses = [...state.expenses, {
+        ...action.payload,
+        id: Date.now().toString()
+      }];
       return {
         ...state,
-        expenses: [...state.expenses, {
-          ...action.payload,
-          id: Date.now().toString()
-        }]
+        expenses: newExpenses
       };
     
     case 'DELETE_EXPENSE':
+      const filteredExpenses = state.expenses.filter(expense => expense.id !== action.payload);
       return {
         ...state,
-        expenses: state.expenses.filter(expense => expense.id !== action.payload)
+        expenses: filteredExpenses
       };
     
     case 'LOAD_EXPENSES':
@@ -69,6 +71,12 @@ const appReducer = (state, action) => {
         ...state,
         analyticsPeriod: action.payload
       };
+
+    case 'SET_CURRENT_PATH':
+      return {
+        ...state,
+        currentPath: action.payload
+      };
     
     default:
       return state;
@@ -85,24 +93,48 @@ export const AppProvider = ({ children }) => {
     const savedExpenses = localStorage.getItem('skyproWallet_expenses');
     
     if (savedUser) {
-      dispatch({ type: 'LOGIN_SUCCESS', payload: JSON.parse(savedUser) });
+      try {
+        const user = JSON.parse(savedUser);
+        dispatch({ type: 'LOGIN_SUCCESS', payload: user });
+      } catch (error) {
+        console.error('Error parsing saved user:', error);
+        localStorage.removeItem('skyproWallet_user');
+      }
     }
     
     if (savedExpenses) {
-      const parsedExpenses = JSON.parse(savedExpenses);
-      dispatch({ type: 'LOAD_EXPENSES', payload: parsedExpenses });
+      try {
+        const expenses = JSON.parse(savedExpenses);
+        dispatch({ type: 'LOAD_EXPENSES', payload: expenses });
+      } catch (error) {
+        console.error('Error parsing saved expenses:', error);
+        localStorage.removeItem('skyproWallet_expenses');
+      }
     }
   }, []);
 
+    useEffect(() => {
+      const savedPath = localStorage.getItem('skyproWallet_currentPath');
+      if (savedPath) {
+        dispatch({ type: 'SET_CURRENT_PATH', payload: savedPath });
+      }
+    }, []);
+
+    useEffect(() => {
+      localStorage.setItem('skyproWallet_currentPath', state.currentPath);
+    }, [state.currentPath]);
+
+    useEffect(() => {
+      if (state.user) {
+        localStorage.setItem('skyproWallet_user', JSON.stringify(state.user));
+      } else {
+        localStorage.removeItem('skyproWallet_user');
+      }
+    }, [state.user]);
+
   useEffect(() => {
-    if (state.user) {
-      localStorage.setItem('skyproWallet_user', JSON.stringify(state.user));
-    } else {
-      localStorage.removeItem('skyproWallet_user');
-    }
-    
     localStorage.setItem('skyproWallet_expenses', JSON.stringify(state.expenses));
-  }, [state.user, state.expenses]);
+  }, [state.expenses]);
 
   const value = {
     ...state,

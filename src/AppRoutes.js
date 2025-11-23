@@ -1,10 +1,21 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useApp } from './context/AppContext';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Expenses from './pages/Expenses';
 import Analytics from './pages/Analytics';
+
+const PathTracker = () => {
+  const { dispatch } = useApp();
+  const location = useLocation();
+
+  useEffect(() => {
+    dispatch({ type: 'SET_CURRENT_PATH', payload: location.pathname });
+  }, [location, dispatch]);
+
+  return null;
+};
 
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated } = useApp();
@@ -17,8 +28,11 @@ const PublicRoute = ({ children }) => {
 };
 
 const AppRoutes = () => {
+  const { isAuthenticated, currentPath } = useApp();
+
   return (
     <Router>
+      <PathTracker />
       <div className="App">
         <Routes>
           <Route 
@@ -55,9 +69,14 @@ const AppRoutes = () => {
             } 
           />
           
-          <Route path="/" element={<Navigate to="/login" />} />
+          <Route 
+            path="/" 
+            element={
+              <Navigate to={isAuthenticated ? currentPath : '/login'} replace />
+            } 
+          />
           
-          <Route path="*" element={<Navigate to="/login" />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </div>
     </Router>
