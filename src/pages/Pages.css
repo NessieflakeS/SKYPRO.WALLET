@@ -9,6 +9,8 @@
   justify-content: center;
   min-height: 100vh;
   padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 .auth-form-container {
@@ -34,14 +36,19 @@
   gap: 54px;
   margin: 0 auto;
   justify-items: end;
+  max-width: 1200px;
 }
 
 .expenses-main-title {
   font-size: 32px;
   font-weight: 600;
-  margin: 36px 0 34px 120px;
+  margin: 36px 0 34px 0;
   text-align: left;
   color: #333;
+  max-width: 1200px; 
+  margin-left: auto; 
+  margin-right: auto;
+  padding: 0 20px;
 }
 
 .expenses-subtitle {
@@ -59,14 +66,19 @@
   align-items: start;
   margin: 0 auto;
   justify-items: end;
+  max-width: 1200px;
 }
 
 .analytics-main-title {
   font-size: 32px;
   font-weight: 600;
-  margin: 36px 0 34px 120px;
+  margin: 36px 0 34px 0;
   text-align: left;
   color: #333;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 0 20px;
 }
 
 .calendar-section {
@@ -80,6 +92,7 @@
 .page-content {
   padding: 20px;
   margin: 0 auto;
+  max-width: 1200px;
 }
 
 @media (max-width: 1024px) {

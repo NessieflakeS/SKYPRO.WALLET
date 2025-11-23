@@ -69,11 +69,13 @@ const AppContent = () => {
 
 function App() {
   return (
-    <NotificationProvider>
-      <AppProvider>
-        <AppContent />
-      </AppProvider>
-    </NotificationProvider>
+    <div className="container">
+      <NotificationProvider>
+        <AppProvider>
+          <AppContent />
+        </AppProvider>
+      </NotificationProvider>
+    </div>
   );
 }
 

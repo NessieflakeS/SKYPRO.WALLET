@@ -5,9 +5,10 @@
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
-  width: 789px;
+  width: 100%; 
+  max-width: 789px; 
   height: 618px;
-  margin-left: 120px;
+  margin-left: 0;
 }
 
 .expense-table-container h3 {
@@ -28,9 +29,11 @@
 }
 
 .expense-table thead {
-  position: sticky;
+  position: -webkit-sticky; 
+  position: sticky; 
   top: 0;
   background: white;
+  z-index: 10; 
 }
 
 .expense-table th {
@@ -98,13 +101,14 @@
 }
 
 .add-expense-form {
-  background: white;
+   background: white;
   padding: 24px;
   border-radius: 30px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  width: 379px;
+  width: 100%; 
+  max-width: 379px; 
   height: 618px;
-  margin-right: 120px;
+  margin-right: 0;
 }
 
 .add-expense-form h3 {
