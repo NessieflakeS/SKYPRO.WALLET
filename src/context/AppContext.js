@@ -117,7 +117,7 @@ const appReducer = (state, action) => {
       };
       break;
     
-    case 'ADD_EXPENSE':
+    case 'ADD_EXPENSE': {
       const newExpense = {
         ...action.payload,
         id: Date.now().toString()
@@ -128,14 +128,16 @@ const appReducer = (state, action) => {
       };
       console.log('➕ Added expense:', newExpense);
       break;
+    }
     
-    case 'DELETE_EXPENSE':
+    case 'DELETE_EXPENSE': {
       newState = {
         ...state,
         expenses: state.expenses.filter(expense => expense.id !== action.payload)
       };
       console.log('🗑️ Deleted expense:', action.payload);
       break;
+    }
     
     case 'SET_CURRENT_PATH':
       newState = {
