@@ -31,24 +31,35 @@ const LoginForm = ({ onSwitchToRegister }) => {
   };
 
   const handleBlur = (e) => {
-    const { name, value } = e.target;
-    setTouched(prev => ({
-      ...prev,
-      [name]: true
-    }));
+  const { name, value } = e.target;
+  setTouched(prev => ({
+    ...prev,
+    [name]: true
+  }));
 
+  if (value.trim()) {
     let error = '';
     if (name === 'email' && !validateEmail(value)) {
-      error = 'Invalid email';
+      error = 'Некорректный email';
     } else if (name === 'password' && !validatePassword(value)) {
-      error = 'Password must be at least 6 characters';
+      error = 'Пароль должен содержать не менее 6 символов';
+    } else if (name === 'name' && !validateName(value)) {
+      error = 'Имя должно содержать не менее 2 символов';
+    } else if (name === 'confirmPassword' && value !== formData.password) {
+      error = 'Пароли не совпадают';
     }
 
     setErrors(prev => ({
       ...prev,
       [name]: error
     }));
-  };
+  } else {
+    setErrors(prev => ({
+      ...prev,
+      [name]: ''
+    }));
+  }
+};
 
   const validateForm = () => {
     const newErrors = {};
@@ -84,8 +95,8 @@ const LoginForm = ({ onSwitchToRegister }) => {
   };
 
   const hasErrors = Object.values(errors).some(error => error) || 
-                   !formData.email || 
-                   !formData.password;
+                 !formData.email.trim() || 
+                 !formData.password.trim();
 
   return (
     <form className="auth-form" onSubmit={handleSubmit}>

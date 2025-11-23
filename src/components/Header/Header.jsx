@@ -13,9 +13,10 @@ const Header = () => {
   };
 
   const handleLogout = () => {
-    dispatch({ type: 'LOGOUT' });
-    navigate('/login');
-  };
+  dispatch({ type: 'LOGOUT' });
+  navigate('/login');
+  window.location.reload();
+};
 
   const handleNavigation = (page) => {
     navigate(`/${page}`);

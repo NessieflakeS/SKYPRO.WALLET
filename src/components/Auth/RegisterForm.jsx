@@ -47,20 +47,20 @@ const RegisterForm = ({ onSwitchToLogin }) => {
   };
 
   const handleBlur = (e) => {
-    const { name, value } = e.target;
-    setTouched(prev => ({
-      ...prev,
-      [name]: true
-    }));
+  const { name, value } = e.target;
+  setTouched(prev => ({
+    ...prev,
+    [name]: true
+  }));
 
+  if (value.trim()) {
     let error = '';
-    
-    if (name === 'name' && !validateName(value)) {
-      error = 'Имя должно содержать не менее 2 символов';
-    } else if (name === 'email' && !validateEmail(value)) {
+    if (name === 'email' && !validateEmail(value)) {
       error = 'Некорректный email';
     } else if (name === 'password' && !validatePassword(value)) {
       error = 'Пароль должен содержать не менее 6 символов';
+    } else if (name === 'name' && !validateName(value)) {
+      error = 'Имя должно содержать не менее 2 символов';
     } else if (name === 'confirmPassword' && value !== formData.password) {
       error = 'Пароли не совпадают';
     }
@@ -69,7 +69,13 @@ const RegisterForm = ({ onSwitchToLogin }) => {
       ...prev,
       [name]: error
     }));
-  };
+  } else {
+    setErrors(prev => ({
+      ...prev,
+      [name]: ''
+    }));
+  }
+};
 
   const validateForm = () => {
     const newErrors = {};

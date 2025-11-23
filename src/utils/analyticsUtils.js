@@ -53,5 +53,13 @@ export const formatDateRange = (startDate, endDate) => {
     return start.toLocaleDateString('ru-RU');
   }
   
+  if (start.getMonth() === end.getMonth() && start.getFullYear() === end.getFullYear()) {
+    return `${start.getDate()} - ${end.getDate()} ${start.toLocaleDateString('ru-RU', { month: 'long', year: 'numeric' })}`;
+  }
+  
+  if (start.getFullYear() === end.getFullYear()) {
+    return `${start.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' })} - ${end.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' })}`;
+  }
+  
   return `${start.toLocaleDateString('ru-RU')} - ${end.toLocaleDateString('ru-RU')}`;
 };
