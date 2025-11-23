@@ -1,10 +1,18 @@
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
-import { validateExpensesArray } from '../utils/dataIntegrity';
 
 const loadFromStorage = (key, defaultValue) => {
   try {
     const item = localStorage.getItem(key);
-    return item ? JSON.parse(item) : defaultValue;
+    if (item === null) {
+      return defaultValue;
+    }
+    
+    try {
+      return JSON.parse(item);
+    } catch (parseError) {
+      console.warn(`Failed to parse ${key} as JSON, returning as string:`, item);
+      return item;
+    }
   } catch (error) {
     console.error(`Error loading ${key} from localStorage:`, error);
     return defaultValue;
@@ -19,20 +27,44 @@ const saveToStorage = (key, value) => {
   }
 };
 
+const cleanupLocalStorage = () => {
+  const keys = [
+    'skyproWallet_user',
+    'skyproWallet_expenses', 
+    'skyproWallet_currentPath',
+    'skyproWallet_analyticsPeriod'
+  ];
+  
+  keys.forEach(key => {
+    try {
+      const item = localStorage.getItem(key);
+      if (item && !item.startsWith('{') && !item.startsWith('[') && item !== 'null') {
+        console.log(`Cleaning up invalid ${key}:`, item);
+        saveToStorage(key, item);
+      }
+    } catch (error) {
+      console.error(`Error cleaning up ${key}:`, error);
+    }
+  });
+};
+
 const getInitialState = () => {
   console.log('🔄 Loading initial state from localStorage...');
   
+  cleanupLocalStorage();
+  
   const user = loadFromStorage('skyproWallet_user', null);
   const rawExpenses = loadFromStorage('skyproWallet_expenses', []);
-  const validatedExpenses = validateExpensesArray(rawExpenses);
   const currentPath = loadFromStorage('skyproWallet_currentPath', '/expenses');
   const analyticsPeriod = loadFromStorage('skyproWallet_analyticsPeriod', {
     startDate: new Date().toISOString().split('T')[0],
     endDate: new Date().toISOString().split('T')[0]
   });
 
+  const validatedExpenses = Array.isArray(rawExpenses) ? rawExpenses : [];
+
   console.log('📥 Loaded from localStorage:', {
-    user,
+    user: !!user,
     expensesCount: validatedExpenses.length,
     currentPath,
     analyticsPeriod
@@ -86,13 +118,15 @@ const appReducer = (state, action) => {
       break;
     
     case 'ADD_EXPENSE':
+      const newExpense = {
+        ...action.payload,
+        id: Date.now().toString()
+      };
       newState = {
         ...state,
-        expenses: [...state.expenses, {
-          ...action.payload,
-          id: Date.now().toString()
-        }]
+        expenses: [...state.expenses, newExpense]
       };
+      console.log('➕ Added expense:', newExpense);
       break;
     
     case 'DELETE_EXPENSE':
@@ -100,6 +134,7 @@ const appReducer = (state, action) => {
         ...state,
         expenses: state.expenses.filter(expense => expense.id !== action.payload)
       };
+      console.log('🗑️ Deleted expense:', action.payload);
       break;
     
     case 'SET_CURRENT_PATH':
@@ -116,6 +151,13 @@ const appReducer = (state, action) => {
       };
       break;
     
+    case 'LOAD_EXPENSES':
+      newState = {
+        ...state,
+        expenses: action.payload
+      };
+      break;
+    
     default:
       return state;
   }
@@ -124,7 +166,7 @@ const appReducer = (state, action) => {
 
   if (action.type !== 'LOGOUT') {
     if (newState.user !== state.user) {
-      console.log('💾 Saving user to localStorage:', newState.user);
+      console.log('💾 Saving user to localStorage');
       saveToStorage('skyproWallet_user', newState.user);
     }
     if (newState.expenses !== state.expenses) {
@@ -136,7 +178,7 @@ const appReducer = (state, action) => {
       saveToStorage('skyproWallet_currentPath', newState.currentPath);
     }
     if (newState.analyticsPeriod !== state.analyticsPeriod) {
-      console.log('💾 Saving analyticsPeriod to localStorage:', newState.analyticsPeriod);
+      console.log('💾 Saving analyticsPeriod to localStorage');
       saveToStorage('skyproWallet_analyticsPeriod', newState.analyticsPeriod);
     }
   }
@@ -148,6 +190,16 @@ const AppContext = createContext();
 
 export const AppProvider = ({ children }) => {
   const [state, dispatch] = useReducer(appReducer, getInitialState());
+
+  useEffect(() => {
+    if (state.isAuthenticated && state.expenses.length === 0) {
+      const savedExpenses = loadFromStorage('skyproWallet_expenses', []);
+      if (savedExpenses.length > 0) {
+        console.log('🔄 Loading expenses from localStorage on init');
+        dispatch({ type: 'LOAD_EXPENSES', payload: savedExpenses });
+      }
+    }
+  }, [state.isAuthenticated]);
 
   const value = {
     ...state,

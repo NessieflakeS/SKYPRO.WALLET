@@ -1,16 +1,19 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { useApp } from './context/AppContext'; 
-import RouteTracker from './components/RouteTracker'; 
+import { useApp } from './context/AppContext';
+import RouteTracker from './components/RouteTracker';
 import Login from './pages/Login';
-import Register from './pages/Register'; 
-import Expenses from './pages/Expenses'; 
+import Register from './pages/Register';
+import Expenses from './pages/Expenses';
 import Analytics from './pages/Analytics';
 
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated } = useApp();
   
-  console.log('🛡️ ProtectedRoute check:', { isAuthenticated, path: window.location.pathname });
+  console.log('🛡️ ProtectedRoute check:', { 
+    isAuthenticated, 
+    path: window.location.pathname 
+  });
   
   if (!isAuthenticated) {
     console.log('🚫 Access denied, redirecting to /login');
@@ -23,7 +26,10 @@ const ProtectedRoute = ({ children }) => {
 const PublicRoute = ({ children }) => {
   const { isAuthenticated } = useApp();
   
-  console.log('🌐 PublicRoute check:', { isAuthenticated, path: window.location.pathname });
+  console.log('🌐 PublicRoute check:', { 
+    isAuthenticated, 
+    path: window.location.pathname 
+  });
   
   if (isAuthenticated) {
     console.log('✅ User authenticated, redirecting to /expenses');
@@ -35,10 +41,20 @@ const PublicRoute = ({ children }) => {
 
 const AppRoutes = () => {
   const { isAuthenticated, currentPath } = useApp();
+  const [isInitialized, setIsInitialized] = useState(false);
+
+  useEffect(() => {
+    setIsInitialized(true);
+  }, []);
 
   const getStartRoute = () => {
+    if (!isInitialized) {
+      return '/'; 
+    }
+
     if (isAuthenticated) {
-      const route = currentPath && currentPath !== '/login' && currentPath !== '/register' 
+      const validPaths = ['/expenses', '/analytics'];
+      const route = currentPath && validPaths.includes(currentPath) 
         ? currentPath 
         : '/expenses';
       console.log('🎯 Start route for authenticated user:', route);
@@ -54,19 +70,59 @@ const AppRoutes = () => {
     isAuthenticated,
     currentPath,
     startRoute,
-    actualPath: window.location.pathname
+    actualPath: window.location.pathname,
+    isInitialized
   });
+
+  if (!isInitialized) {
+    return <div>Loading...</div>; 
+  }
 
   return (
     <Router>
       <RouteTracker />
       <div className="App">
         <Routes>
-          {/* ... остальные роуты ... */}
+          <Route 
+            path="/login" 
+            element={
+              <PublicRoute>
+                <Login />
+              </PublicRoute>
+            } 
+          />
+          <Route 
+            path="/register" 
+            element={
+              <PublicRoute>
+                <Register />
+              </PublicRoute>
+            } 
+          />
+          
+          <Route 
+            path="/expenses" 
+            element={
+              <ProtectedRoute>
+                <Expenses />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/analytics" 
+            element={
+              <ProtectedRoute>
+                <Analytics />
+              </ProtectedRoute>
+            } 
+          />
+          
           <Route 
             path="/" 
             element={<Navigate to={startRoute} replace />} 
           />
+          
+          <Route path="*" element={<Navigate to={startRoute} replace />} />
         </Routes>
       </div>
     </Router>
