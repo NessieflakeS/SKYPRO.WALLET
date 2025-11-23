@@ -10,8 +10,8 @@ const loadFromStorage = (key, defaultValue) => {
     try {
       return JSON.parse(item);
     } catch (parseError) {
-      console.warn(`Failed to parse ${key} as JSON, returning as string:`, item);
-      return item;
+      console.warn(`Failed to parse ${key} as JSON, using default:`, parseError);
+      return defaultValue;
     }
   } catch (error) {
     console.error(`Error loading ${key} from localStorage:`, error);
@@ -27,7 +27,7 @@ const saveToStorage = (key, value) => {
   }
 };
 
-const cleanupLocalStorage = () => {
+const cleanupCorruptedData = () => {
   const keys = [
     'skyproWallet_user',
     'skyproWallet_expenses', 
@@ -38,12 +38,22 @@ const cleanupLocalStorage = () => {
   keys.forEach(key => {
     try {
       const item = localStorage.getItem(key);
-      if (item && !item.startsWith('{') && !item.startsWith('[') && item !== 'null') {
-        console.log(`Cleaning up invalid ${key}:`, item);
-        saveToStorage(key, item);
+      let isValid = true;
+      
+      if (item !== null) {
+        try {
+          JSON.parse(item);
+        } catch (e) {
+          isValid = false;
+        }
+        
+        if (!isValid || item.includes('\\\\')) {
+          console.log(`🧹 Removing corrupted data for ${key}:`, item);
+          localStorage.removeItem(key);
+        }
       }
     } catch (error) {
-      console.error(`Error cleaning up ${key}:`, error);
+      console.error(`Error checking ${key}:`, error);
     }
   });
 };
@@ -51,7 +61,7 @@ const cleanupLocalStorage = () => {
 const getInitialState = () => {
   console.log('🔄 Loading initial state from localStorage...');
   
-  cleanupLocalStorage();
+  cleanupCorruptedData();
   
   const user = loadFromStorage('skyproWallet_user', null);
   const rawExpenses = loadFromStorage('skyproWallet_expenses', []);
@@ -62,11 +72,17 @@ const getInitialState = () => {
   });
 
   const validatedExpenses = Array.isArray(rawExpenses) ? rawExpenses : [];
+  
+  let validatedCurrentPath = '/expenses';
+  if (typeof currentPath === 'string' && 
+      (currentPath === '/expenses' || currentPath === '/analytics' || currentPath === '/login')) {
+    validatedCurrentPath = currentPath;
+  }
 
   console.log('📥 Loaded from localStorage:', {
     user: !!user,
     expensesCount: validatedExpenses.length,
-    currentPath,
+    currentPath: validatedCurrentPath,
     analyticsPeriod
   });
 
@@ -74,7 +90,7 @@ const getInitialState = () => {
     user: user,
     expenses: validatedExpenses,
     isAuthenticated: !!user,
-    currentPath: currentPath,
+    currentPath: validatedCurrentPath,
     analyticsPeriod: analyticsPeriod
   };
 };
@@ -84,12 +100,11 @@ const appReducer = (state, action) => {
   
   console.log('=== REDUCER ACTION ===', {
     actionType: action.type,
-    actionPayload: action.payload,
-    currentState: state
+    actionPayload: action.payload
   });
   
   switch (action.type) {
-    case 'LOGIN_SUCCESS':
+    case 'LOGIN_SUCCESS': {
       newState = {
         ...state,
         user: action.payload,
@@ -97,8 +112,9 @@ const appReducer = (state, action) => {
         currentPath: '/expenses'
       };
       break;
+    }
     
-    case 'LOGOUT':
+    case 'LOGOUT': {
       newState = {
         ...getInitialState(),
         isAuthenticated: false,
@@ -107,8 +123,9 @@ const appReducer = (state, action) => {
       localStorage.removeItem('skyproWallet_user');
       localStorage.removeItem('skyproWallet_currentPath');
       break;
+    }
     
-    case 'REGISTER_SUCCESS':
+    case 'REGISTER_SUCCESS': {
       newState = {
         ...state,
         user: action.payload,
@@ -116,6 +133,7 @@ const appReducer = (state, action) => {
         currentPath: '/expenses'
       };
       break;
+    }
     
     case 'ADD_EXPENSE': {
       const newExpense = {
@@ -139,26 +157,32 @@ const appReducer = (state, action) => {
       break;
     }
     
-    case 'SET_CURRENT_PATH':
+    case 'SET_CURRENT_PATH': {
+      const validPaths = ['/expenses', '/analytics', '/login', '/register'];
+      const pathToSave = validPaths.includes(action.payload) ? action.payload : '/expenses';
+      
       newState = {
         ...state,
-        currentPath: action.payload
+        currentPath: pathToSave
       };
       break;
+    }
     
-    case 'SET_ANALYTICS_PERIOD':
+    case 'SET_ANALYTICS_PERIOD': {
       newState = {
         ...state,
         analyticsPeriod: action.payload
       };
       break;
+    }
     
-    case 'LOAD_EXPENSES':
+    case 'LOAD_EXPENSES': {
       newState = {
         ...state,
         expenses: action.payload
       };
       break;
+    }
     
     default:
       return state;
