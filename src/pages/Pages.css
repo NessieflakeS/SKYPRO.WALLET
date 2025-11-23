@@ -33,7 +33,7 @@
 .expenses-layout {
   display: grid;
   grid-template-columns: 1fr 6fr;
-  gap: 54px;
+  gap: 32px;
   margin: 0 auto;
   justify-items: end;
   max-width: 1200px;
@@ -48,7 +48,6 @@
   max-width: 1200px; 
   margin-left: auto; 
   margin-right: auto;
-  padding: 0 20px;
 }
 
 .expenses-subtitle {
@@ -61,11 +60,10 @@
 
 .analytics-layout {
   display: grid;
-  grid-template-columns: 1fr 6fr;
+  grid-template-columns: 1fr 2fr;
   gap: 32px;
   align-items: start;
   margin: 0 auto;
-  justify-items: end;
   max-width: 1200px;
 }
 
@@ -78,7 +76,6 @@
   max-width: 1200px;
   margin-left: auto;
   margin-right: auto;
-  padding: 0 20px;
 }
 
 .calendar-section {
@@ -90,7 +87,6 @@
 }
 
 .page-content {
-  padding: 20px;
   margin: 0 auto;
   max-width: 1200px;
 }
