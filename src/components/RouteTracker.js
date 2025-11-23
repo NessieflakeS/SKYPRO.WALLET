@@ -14,11 +14,6 @@ const RouteTracker = () => {
          location.pathname === '/login' ||
          location.pathname === '/register')) {
       
-      console.log('📍 Route changed:', {
-        from: previousPathRef.current,
-        to: location.pathname
-      });
-      
       dispatch({ 
         type: 'SET_CURRENT_PATH', 
         payload: location.pathname 
@@ -26,7 +21,7 @@ const RouteTracker = () => {
       
       previousPathRef.current = location.pathname;
     }
-  }, [location, dispatch]);
+  }, [location, dispatch, currentPath]);
 
   return null;
 };

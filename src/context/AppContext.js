@@ -10,11 +10,9 @@ const loadFromStorage = (key, defaultValue) => {
     try {
       return JSON.parse(item);
     } catch (parseError) {
-      console.warn(`Failed to parse ${key} as JSON, using default:`, parseError);
       return defaultValue;
     }
   } catch (error) {
-    console.error(`Error loading ${key} from localStorage:`, error);
     return defaultValue;
   }
 };
@@ -23,7 +21,6 @@ const saveToStorage = (key, value) => {
   try {
     localStorage.setItem(key, JSON.stringify(value));
   } catch (error) {
-    console.error(`Error saving ${key} to localStorage:`, error);
   }
 };
 
@@ -48,19 +45,15 @@ const cleanupCorruptedData = () => {
         }
         
         if (!isValid || item.includes('\\\\')) {
-          console.log(`🧹 Removing corrupted data for ${key}:`, item);
           localStorage.removeItem(key);
         }
       }
     } catch (error) {
-      console.error(`Error checking ${key}:`, error);
     }
   });
 };
 
 const getInitialState = () => {
-  console.log('🔄 Loading initial state from localStorage...');
-  
   cleanupCorruptedData();
   
   const user = loadFromStorage('skyproWallet_user', null);
@@ -79,13 +72,6 @@ const getInitialState = () => {
     validatedCurrentPath = currentPath;
   }
 
-  console.log('📥 Loaded from localStorage:', {
-    user: !!user,
-    expensesCount: validatedExpenses.length,
-    currentPath: validatedCurrentPath,
-    analyticsPeriod
-  });
-
   return {
     user: user,
     expenses: validatedExpenses,
@@ -97,11 +83,6 @@ const getInitialState = () => {
 
 const appReducer = (state, action) => {
   let newState;
-  
-  console.log('=== REDUCER ACTION ===', {
-    actionType: action.type,
-    actionPayload: action.payload
-  });
   
   switch (action.type) {
     case 'LOGIN_SUCCESS': {
@@ -144,7 +125,6 @@ const appReducer = (state, action) => {
         ...state,
         expenses: [...state.expenses, newExpense]
       };
-      console.log('➕ Added expense:', newExpense);
       break;
     }
     
@@ -153,7 +133,6 @@ const appReducer = (state, action) => {
         ...state,
         expenses: state.expenses.filter(expense => expense.id !== action.payload)
       };
-      console.log('🗑️ Deleted expense:', action.payload);
       break;
     }
     
@@ -188,23 +167,17 @@ const appReducer = (state, action) => {
       return state;
   }
 
-  console.log('=== NEW STATE ===', newState);
-
   if (action.type !== 'LOGOUT') {
     if (newState.user !== state.user) {
-      console.log('💾 Saving user to localStorage');
       saveToStorage('skyproWallet_user', newState.user);
     }
     if (newState.expenses !== state.expenses) {
-      console.log('💾 Saving expenses to localStorage. Count:', newState.expenses.length);
       saveToStorage('skyproWallet_expenses', newState.expenses);
     }
     if (newState.currentPath !== state.currentPath) {
-      console.log('💾 Saving currentPath to localStorage:', newState.currentPath);
       saveToStorage('skyproWallet_currentPath', newState.currentPath);
     }
     if (newState.analyticsPeriod !== state.analyticsPeriod) {
-      console.log('💾 Saving analyticsPeriod to localStorage');
       saveToStorage('skyproWallet_analyticsPeriod', newState.analyticsPeriod);
     }
   }
@@ -221,11 +194,10 @@ export const AppProvider = ({ children }) => {
     if (state.isAuthenticated && state.expenses.length === 0) {
       const savedExpenses = loadFromStorage('skyproWallet_expenses', []);
       if (savedExpenses.length > 0) {
-        console.log('🔄 Loading expenses from localStorage on init');
         dispatch({ type: 'LOAD_EXPENSES', payload: savedExpenses });
       }
     }
-  }, [state.isAuthenticated]);
+  }, [state.isAuthenticated, state.expenses.length]);
 
   const value = {
     ...state,
