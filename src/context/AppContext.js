@@ -1,140 +1,153 @@
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
+import { validateExpensesArray } from '../utils/dataIntegrity';
 
-const initialState = {
-  user: null,
-  expenses: [],
-  isAuthenticated: false,
-  currentPath: '/expenses',
-  analyticsPeriod: {
-    startDate: new Date().toISOString().split('T')[0], 
-    endDate: new Date().toISOString().split('T')[0] 
+const loadFromStorage = (key, defaultValue) => {
+  try {
+    const item = localStorage.getItem(key);
+    return item ? JSON.parse(item) : defaultValue;
+  } catch (error) {
+    console.error(`Error loading ${key} from localStorage:`, error);
+    return defaultValue;
   }
 };
 
+const saveToStorage = (key, value) => {
+  try {
+    localStorage.setItem(key, JSON.stringify(value));
+  } catch (error) {
+    console.error(`Error saving ${key} to localStorage:`, error);
+  }
+};
+
+const getInitialState = () => {
+  console.log('🔄 Loading initial state from localStorage...');
+  
+  const user = loadFromStorage('skyproWallet_user', null);
+  const rawExpenses = loadFromStorage('skyproWallet_expenses', []);
+  const validatedExpenses = validateExpensesArray(rawExpenses);
+  const currentPath = loadFromStorage('skyproWallet_currentPath', '/expenses');
+  const analyticsPeriod = loadFromStorage('skyproWallet_analyticsPeriod', {
+    startDate: new Date().toISOString().split('T')[0],
+    endDate: new Date().toISOString().split('T')[0]
+  });
+
+  console.log('📥 Loaded from localStorage:', {
+    user,
+    expensesCount: validatedExpenses.length,
+    currentPath,
+    analyticsPeriod
+  });
+
+  return {
+    user: user,
+    expenses: validatedExpenses,
+    isAuthenticated: !!user,
+    currentPath: currentPath,
+    analyticsPeriod: analyticsPeriod
+  };
+};
+
 const appReducer = (state, action) => {
+  let newState;
+  
+  console.log('=== REDUCER ACTION ===', {
+    actionType: action.type,
+    actionPayload: action.payload,
+    currentState: state
+  });
+  
   switch (action.type) {
     case 'LOGIN_SUCCESS':
-      return {
+      newState = {
         ...state,
         user: action.payload,
         isAuthenticated: true,
-        currentPage: 'expenses'
+        currentPath: '/expenses'
       };
+      break;
     
     case 'LOGOUT':
-      localStorage.removeItem('skyproWallet_user');
-      localStorage.removeItem('skyproWallet_expenses');
-      return {
-        ...initialState,
-        currentPage: 'login'
+      newState = {
+        ...getInitialState(),
+        isAuthenticated: false,
+        currentPath: '/login'
       };
+      localStorage.removeItem('skyproWallet_user');
+      localStorage.removeItem('skyproWallet_currentPath');
+      break;
     
     case 'REGISTER_SUCCESS':
-      return {
+      newState = {
         ...state,
         user: action.payload,
         isAuthenticated: true,
-        currentPage: 'expenses'
+        currentPath: '/expenses'
       };
+      break;
     
     case 'ADD_EXPENSE':
-      const newExpenses = [...state.expenses, {
-        ...action.payload,
-        id: Date.now().toString()
-      }];
-      return {
+      newState = {
         ...state,
-        expenses: newExpenses
+        expenses: [...state.expenses, {
+          ...action.payload,
+          id: Date.now().toString()
+        }]
       };
+      break;
     
     case 'DELETE_EXPENSE':
-      const filteredExpenses = state.expenses.filter(expense => expense.id !== action.payload);
-      return {
+      newState = {
         ...state,
-        expenses: filteredExpenses
+        expenses: state.expenses.filter(expense => expense.id !== action.payload)
       };
+      break;
     
-    case 'LOAD_EXPENSES':
-      return {
-        ...state,
-        expenses: action.payload
-      };
-    
-    case 'SET_CURRENT_PAGE':
-      return {
-        ...state,
-        currentPage: action.payload
-      };
-    
-    case 'SET_ANALYTICS_PERIOD':
-      return {
-        ...state,
-        analyticsPeriod: action.payload
-      };
-
     case 'SET_CURRENT_PATH':
-      return {
+      newState = {
         ...state,
         currentPath: action.payload
       };
+      break;
+    
+    case 'SET_ANALYTICS_PERIOD':
+      newState = {
+        ...state,
+        analyticsPeriod: action.payload
+      };
+      break;
     
     default:
       return state;
   }
+
+  console.log('=== NEW STATE ===', newState);
+
+  if (action.type !== 'LOGOUT') {
+    if (newState.user !== state.user) {
+      console.log('💾 Saving user to localStorage:', newState.user);
+      saveToStorage('skyproWallet_user', newState.user);
+    }
+    if (newState.expenses !== state.expenses) {
+      console.log('💾 Saving expenses to localStorage. Count:', newState.expenses.length);
+      saveToStorage('skyproWallet_expenses', newState.expenses);
+    }
+    if (newState.currentPath !== state.currentPath) {
+      console.log('💾 Saving currentPath to localStorage:', newState.currentPath);
+      saveToStorage('skyproWallet_currentPath', newState.currentPath);
+    }
+    if (newState.analyticsPeriod !== state.analyticsPeriod) {
+      console.log('💾 Saving analyticsPeriod to localStorage:', newState.analyticsPeriod);
+      saveToStorage('skyproWallet_analyticsPeriod', newState.analyticsPeriod);
+    }
+  }
+
+  return newState;
 };
 
 const AppContext = createContext();
 
 export const AppProvider = ({ children }) => {
-  const [state, dispatch] = useReducer(appReducer, initialState);
-
-  useEffect(() => {
-    const savedUser = localStorage.getItem('skyproWallet_user');
-    const savedExpenses = localStorage.getItem('skyproWallet_expenses');
-    
-    if (savedUser) {
-      try {
-        const user = JSON.parse(savedUser);
-        dispatch({ type: 'LOGIN_SUCCESS', payload: user });
-      } catch (error) {
-        console.error('Error parsing saved user:', error);
-        localStorage.removeItem('skyproWallet_user');
-      }
-    }
-    
-    if (savedExpenses) {
-      try {
-        const expenses = JSON.parse(savedExpenses);
-        dispatch({ type: 'LOAD_EXPENSES', payload: expenses });
-      } catch (error) {
-        console.error('Error parsing saved expenses:', error);
-        localStorage.removeItem('skyproWallet_expenses');
-      }
-    }
-  }, []);
-
-    useEffect(() => {
-      const savedPath = localStorage.getItem('skyproWallet_currentPath');
-      if (savedPath) {
-        dispatch({ type: 'SET_CURRENT_PATH', payload: savedPath });
-      }
-    }, []);
-
-    useEffect(() => {
-      localStorage.setItem('skyproWallet_currentPath', state.currentPath);
-    }, [state.currentPath]);
-
-    useEffect(() => {
-      if (state.user) {
-        localStorage.setItem('skyproWallet_user', JSON.stringify(state.user));
-      } else {
-        localStorage.removeItem('skyproWallet_user');
-      }
-    }, [state.user]);
-
-  useEffect(() => {
-    localStorage.setItem('skyproWallet_expenses', JSON.stringify(state.expenses));
-  }, [state.expenses]);
+  const [state, dispatch] = useReducer(appReducer, getInitialState());
 
   const value = {
     ...state,

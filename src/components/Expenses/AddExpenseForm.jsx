@@ -72,7 +72,7 @@ const AddExpenseForm = () => {
     e.preventDefault();
 
     if (!validateForm()) {
-      addNotification('Пожалуйста, проверьте введенные данные', 'error');
+      addNotification('Упс! Введенные данные некорректны. Введите данные корректно и повторите попытку.', 'error');
       return;
     }
 
@@ -83,6 +83,8 @@ const AddExpenseForm = () => {
       amount: Number(formData.amount)
     };
 
+    console.log('➕ Adding expense:', expense);
+  
     dispatch({ type: 'ADD_EXPENSE', payload: expense });
     addNotification('Расход успешно добавлен!', 'success');
 
